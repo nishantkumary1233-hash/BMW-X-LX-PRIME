@@ -146,6 +146,7 @@ export function analyzePatternSequence(
     lastResultWasLoss?: boolean;
     failedSide?: 'BIG' | 'SMALL';
     corpus1000?: ('B' | 'S')[];
+    level?: number;
   }
 ): PredictionResult {
   const nums = issues.map((x) => x.number);
@@ -1046,7 +1047,7 @@ export function analyzePatternSequence(
 
   const dynamicNumbers = calculateDynamicBestNumbers(predictedSide, nums);
 
-  return {
+  const baseResult: PredictionResult = {
     period: nextPeriodStr,
     mode,
     prediction: predictedSide,
@@ -1065,4 +1066,663 @@ export function analyzePatternSequence(
     scanStatus: 'EQUILIBRIUM_SCAN',
     deepAnalysisSummary: `Multi-engine consensus scan evaluated 10-period equilibrium. Locking ${predictedSide}.`,
   };
+
+  // Execute V3 Multi-Level Consensus Logic without removing any previous logic
+  const v3Level = (options && typeof options.level === 'number') ? options.level : 1;
+  const v3Pred = generatePrediction(issues, dynamicNumbers.favorNumber, dynamicNumbers.oppositeNumber, v3Level);
+
+  return {
+    ...baseResult,
+    prediction: v3Pred.predictedSize as 'BIG' | 'SMALL',
+    confidence: Math.max(baseResult.confidence, v3Pred.confidence),
+    favorNumber: v3Pred.favNumber,
+    oppositeNumber: v3Pred.oppNumber,
+    isTwoLevelVerified: v3Pred.isTwoLevelVerified,
+    isSkipRecommended: v3Pred.isSkipRecommended,
+    actionText: v3Pred.actionText,
+    skipReason: v3Pred.skipReason,
+    riskLevel: v3Pred.riskLevel,
+    recommendedUnit: v3Pred.recommendedUnit,
+    transferDescription: v3Pred.transferDescription,
+    currentLevel: v3Pred.currentLevel,
+    levelMultiplier: v3Pred.levelMultiplier,
+    levelDefenseStatus: v3Pred.levelDefenseStatus,
+    markovProb: v3Pred.markovProb,
+    logicConsensus: v3Pred.logicConsensus,
+  };
+}
+
+/* =========================================================================
+   BMW X OBLIVION V3 MULTI-LEVEL CONSENSUS ENGINE (USER ADDITION)
+   ========================================================================= */
+
+export function getSize(actualNumber: number): 'BIG' | 'SMALL' {
+  return actualNumber >= 5 ? 'BIG' : 'SMALL';
+}
+
+export function analyzeRhythm(history: any[]) {
+  const sizes: ('BIG' | 'SMALL')[] = history.map((h) => {
+    if (typeof h === 'object' && h !== null) {
+      if (h.size === 'BIG' || h.size === 'SMALL') return h.size;
+      if (h.actualSize === 'BIG' || h.actualSize === 'SMALL') return h.actualSize;
+      const n = typeof h.number === 'number' ? h.number : (typeof h.actualNumber === 'number' ? h.actualNumber : 0);
+      return getSize(n);
+    }
+    if (typeof h === 'number') return getSize(h);
+    return 'BIG';
+  });
+
+  const lastResult: 'BIG' | 'SMALL' = sizes[0] || 'BIG';
+  let sameResultCount = 0;
+  for (const s of sizes) {
+    if (s === lastResult) sameResultCount++;
+    else break;
+  }
+
+  const sample = sizes.slice(0, 30);
+  const bigTotal = sample.filter((s) => s === 'BIG').length;
+  const bigPct = sample.length > 0 ? Math.round((bigTotal / sample.length) * 100) : 50;
+  const smallPct = 100 - bigPct;
+
+  const favoredSize: 'BIG' | 'SMALL' = bigPct >= smallPct ? 'BIG' : 'SMALL';
+  const bias = favoredSize;
+  const strength = Math.abs(bigPct - smallPct) + 75;
+
+  return {
+    sameResultCount,
+    lastResult,
+    favoredSize,
+    bias,
+    strength,
+    bigPct,
+    smallPct,
+  };
+}
+
+export function analyzeBacktest(history: any[]) {
+  const counts: Record<number, number> = {};
+  for (let i = 0; i <= 9; i++) counts[i] = 0;
+
+  let bigs = 0;
+  let smalls = 0;
+  const sample = history.slice(0, 50);
+
+  sample.forEach((h) => {
+    const n = typeof h === 'number' ? h : (typeof h === 'object' && h !== null ? (h.number ?? h.actualNumber ?? 0) : 0);
+    counts[n] = (counts[n] || 0) + 1;
+    if (n >= 5) bigs++;
+    else smalls++;
+  });
+
+  const total = Math.max(1, sample.length);
+  const bigPct = Math.round((bigs / total) * 100);
+  const smallPct = 100 - bigPct;
+  const dominantSize: 'BIG' | 'SMALL' = bigPct >= smallPct ? 'BIG' : 'SMALL';
+
+  const topNumbers = Object.entries(counts)
+    .map(([num, count]) => ({ num: Number(num), count }))
+    .sort((a, b) => b.count - a.count);
+
+  return {
+    favoredSize: dominantSize,
+    dominantSize,
+    confidence: Math.max(bigPct, smallPct),
+    bigPct,
+    smallPct,
+    topNumbers,
+  };
+}
+
+export function detectPattern(history: any[]) {
+  const seq: ('B' | 'S')[] = history.slice(0, 10).map((h) => {
+    const s = typeof h === 'object' && h !== null ? (h.size || h.actualSize) : null;
+    if (s === 'BIG') return 'B';
+    if (s === 'SMALL') return 'S';
+    const n = typeof h === 'number' ? h : (typeof h === 'object' && h !== null ? (h.number ?? h.actualNumber ?? 0) : 0);
+    return n >= 5 ? 'B' : 'S';
+  });
+
+  const chrono = [...seq].reverse();
+  for (const pat of PATTERNS_DATABASE) {
+    const len = pat.sequence.length;
+    if (chrono.length >= len) {
+      const tail = chrono.slice(-len);
+      let match = true;
+      for (let i = 0; i < len; i++) {
+        if (tail[i] !== pat.sequence[i]) {
+          match = false;
+          break;
+        }
+      }
+      if (match) {
+        return {
+          recommendedSize: pat.next === 'B' ? 'BIG' : 'SMALL',
+          strength: pat.confidence || 94,
+          detail: `${pat.name} [Confidence: ${pat.confidence}%]`,
+          name: pat.name,
+          icon: '⚡',
+          category: pat.category,
+        };
+      }
+    }
+  }
+
+  return null;
+}
+
+export function analyzeFlip(history: any[]) {
+  const sizes = history.slice(0, 10).map((h) => {
+    const s = typeof h === 'object' && h !== null ? (h.size || h.actualSize) : null;
+    if (s === 'BIG' || s === 'SMALL') return s;
+    const n = typeof h === 'number' ? h : (typeof h === 'object' && h !== null ? (h.number ?? h.actualNumber ?? 0) : 0);
+    return n >= 5 ? 'BIG' : 'SMALL';
+  });
+
+  let flips = 0;
+  for (let i = 0; i < sizes.length - 1; i++) {
+    if (sizes[i] !== sizes[i + 1]) flips++;
+  }
+
+  const flipRatio = sizes.length > 1 ? flips / (sizes.length - 1) : 0.5;
+  const last = sizes[0] || 'BIG';
+
+  // If flipping aggressively, predict opposite of last
+  if (flipRatio >= 0.6) {
+    const target = last === 'BIG' ? 'SMALL' : 'BIG';
+    return {
+      bigPct: target === 'BIG' ? 65 : 35,
+      smallPct: target === 'SMALL' ? 65 : 35,
+    };
+  }
+
+  return { bigPct: 50, smallPct: 50 };
+}
+
+export function analyzeLevel(history: any[], level: number) {
+  return {
+    level,
+    safeThreshold: level === 1 ? 0 : 35,
+    antiDrawdownArmed: level >= 2,
+    timestamp: Date.now(),
+  };
+}
+
+// MAIN PREDICTION LOGIC (AS PROVIDED BY USER)
+export function generatePrediction(history: any[], favNumber: number = 7, oppNumber: number = 2, level: number = 1) {
+  // 1. Basic analysis
+  const rhythm = analyzeRhythm(history);
+  const backtest = analyzeBacktest(history);
+  const pattern = detectPattern(history);
+  const flipAnalysis = analyzeFlip(history);
+  const levelAnalysis = analyzeLevel(history, level);
+
+  // 2. Default prediction
+  let predictedSize: 'BIG' | 'SMALL' = "BIG";
+  let confidence = 80;
+  let isTwoLevelVerified = false;
+  let isSkipRecommended = false;
+
+  let actionText = "PLAY";
+  let riskLevel = "LOW_RISK";
+  let recommendedUnit =
+    level >= 2
+      ? (level === 2 ? "3X UNIT (RECOVERY PLAY)" : "8X UNIT (RECOVERY PLAY)")
+      : "1X UNIT (CONFIDENT PLAY)";
+
+  let skipReason: string | undefined;
+  let transferDescription: string | undefined;
+
+  // 3. Dragon continuation
+  if (rhythm.sameResultCount >= 4) {
+    predictedSize = rhythm.lastResult;
+    confidence = Math.min(99, 90 + rhythm.sameResultCount * 2);
+
+    isTwoLevelVerified = true;
+    isSkipRecommended = false;
+
+    actionText = "PLAY";
+    riskLevel = "LOW_RISK";
+
+    recommendedUnit =
+      level >= 2
+        ? (level === 2
+            ? "3X UNIT (RECOVERY DRAGON RIDE)"
+            : "8X UNIT (RECOVERY DRAGON RIDE)")
+        : "1X UNIT (PLAY / RIDE DRAGON)";
+
+    transferDescription =
+      `Confirmed ${rhythm.lastResult} Dragon ` +
+      `(${rhythm.sameResultCount} in a row) -> ` +
+      `Stay with ${rhythm.lastResult}`;
+  }
+
+  // 4. High-confidence pattern
+  else if (
+    pattern &&
+    pattern.recommendedSize &&
+    pattern.strength >= 88
+  ) {
+    predictedSize = pattern.recommendedSize as 'BIG' | 'SMALL';
+    confidence = pattern.strength;
+
+    isTwoLevelVerified = true;
+    isSkipRecommended = false;
+
+    actionText = "PLAY";
+    riskLevel = "LOW_RISK";
+
+    recommendedUnit =
+      level >= 2
+        ? (level === 2
+            ? "3X UNIT (LEVEL 2 RECOVERY HIT)"
+            : "8X UNIT (LEVEL 3 RECOVERY HIT)")
+        : "1X UNIT (CONFIDENT PLAY)";
+
+    transferDescription = pattern.detail;
+  }
+
+  // 5. Recovery-level consensus
+  else if (level >= 2) {
+    let bigScore = 0;
+    let smallScore = 0;
+
+    if (backtest.favoredSize === "BIG")
+      bigScore += backtest.confidence * 1.5;
+    else
+      smallScore += backtest.confidence * 1.5;
+
+    if (flipAnalysis) {
+      bigScore += flipAnalysis.bigPct * 1.2;
+      smallScore += flipAnalysis.smallPct * 1.2;
+    }
+
+    if (rhythm.bias === "BIG")
+      bigScore += rhythm.strength;
+    else
+      smallScore += rhythm.strength;
+
+    if (pattern && pattern.recommendedSize) {
+      if (pattern.recommendedSize === "BIG")
+        bigScore += pattern.strength;
+      else
+        smallScore += pattern.strength;
+    }
+
+    const difference = Math.abs(bigScore - smallScore);
+
+    predictedSize =
+      bigScore >= smallScore
+        ? "BIG"
+        : "SMALL";
+
+    // Strong consensus
+    if (difference >= 35) {
+      confidence = Math.min(99, 95 + level);
+
+      isTwoLevelVerified = true;
+      isSkipRecommended = false;
+
+      actionText = "PLAY";
+      riskLevel = "LOW_RISK";
+
+      recommendedUnit =
+        level === 2
+          ? "3X UNIT (LEVEL 2 RECOVERY HIT)"
+          : "8X UNIT (LEVEL 3 RECOVERY HIT)";
+
+      transferDescription =
+        `Level ${level} Anti-Drawdown Protocol: ` +
+        `Multi-Model Consensus (${predictedSize} score +${Math.round(difference)}) ` +
+        `locked to reset to Level 1!`;
+    }
+
+    // Ambiguous result
+    else {
+      confidence = 78;
+
+      isTwoLevelVerified = false;
+      isSkipRecommended = true;
+
+      actionText = "SKIP";
+      riskLevel = "HIGH_RISK_TRAP";
+
+      recommendedUnit =
+        "0X (SKIP ROUND / LEVEL-2 DEFENSE)";
+
+      skipReason =
+        "LEVEL-2 CAP DEFENSE · Multi-Engine Ambiguity Filter Active · " +
+        "Advised: SKIP (Wait for High-Confidence Setup)";
+
+      transferDescription =
+        "Ambiguous 50/50 noise filtered out. " +
+        "Level-2 defense active to prevent advancing to Level 3 or 4. " +
+        "SKIP advised.";
+    }
+  }
+
+  // 6. Unclear pattern
+  else {
+    if (backtest) {
+      predictedSize = backtest.dominantSize;
+      confidence =
+        Math.max(backtest.bigPct, backtest.smallPct);
+    } else {
+      predictedSize = rhythm.favoredSize;
+      confidence =
+        Math.max(rhythm.bigPct, rhythm.smallPct);
+    }
+
+    isSkipRecommended = true;
+    actionText = "SKIP";
+    riskLevel = "HIGH_RISK_TRAP";
+
+    recommendedUnit =
+      "0X (SKIP ROUND / PRESERVE BALANCE)";
+
+    skipReason =
+      `UNCLEAR PATTERN · 1000-Period Analysis Favors ` +
+      `${predictedSize} (${confidence}%) · Advised: SKIP`;
+
+    transferDescription =
+      `Unclear pattern structure. 1000 historical rounds analyzed. ` +
+      `Dominant side is ${predictedSize}, but high variance: SKIP advised.`;
+  }
+
+  // 7. Favourite / Opposite numbers
+  const numbers =
+    generateFavAndOppNumbers(
+      predictedSize,
+      backtest,
+      history,
+      favNumber,
+      oppNumber
+    );
+
+  // 8. Final prediction object
+  return {
+    predictedSize,
+    favNumber: numbers.favNumber,
+    oppNumber: numbers.oppNumber,
+    confidence,
+    isTwoLevelVerified,
+    activePattern: pattern,
+    backtest,
+    isSkipRecommended,
+    actionText,
+    skipReason,
+    riskLevel,
+    recommendedUnit,
+    transferDescription,
+    currentLevel: level,
+    levelMultiplier:
+      level === 1
+        ? "1X"
+        : level === 2
+        ? "3X"
+        : level === 3
+        ? "8X"
+        : "24X",
+    levelDefenseStatus:
+      level === 1
+        ? "L1 STANDARD (OPTIMAL ALPHA)"
+        : level === 2
+        ? "L2 RECOVERY MATRIX (95% CAP DEFENSE)"
+        : "L3 EMERGENCY SHIELD",
+    markovProb: {
+      bigPct: rhythm.bigPct,
+      smallPct: rhythm.smallPct
+    },
+    logicConsensus: levelAnalysis
+  };
+}
+
+// FAV NUMBER / OPP NUMBER LOGIC (AS PROVIDED BY USER)
+export function generateFavAndOppNumbers(
+  predictedSize: 'BIG' | 'SMALL',
+  backtest: any,
+  history: any[],
+  currentFav?: number,
+  currentOpp?: number
+) {
+  const oppositeSize =
+    predictedSize === "BIG"
+      ? "SMALL"
+      : "BIG";
+
+  const bigNumbers = [5, 6, 7, 8, 9];
+  const smallNumbers = [0, 1, 2, 3, 4];
+
+  const favPool =
+    predictedSize === "BIG"
+      ? bigNumbers
+      : smallNumbers;
+
+  const oppPool =
+    oppositeSize === "BIG"
+      ? bigNumbers
+      : smallNumbers;
+
+  const score: Record<number, number> = {};
+
+  // Base score
+  for (let n = 0; n <= 9; n++) {
+    score[n] = 1;
+  }
+
+  // Backtest top numbers
+  if (
+    backtest &&
+    backtest.topNumbers
+  ) {
+    backtest.topNumbers.forEach(
+      (item: any, index: number) => {
+        score[item.num] =
+          (score[item.num] || 0) +
+          (12 - index * 3) +
+          item.count;
+      }
+    );
+  }
+
+  // Recent 25 results
+  history
+    .slice(0, 25)
+    .forEach((h: any, index: number) => {
+      const number = typeof h === 'number' ? h : (typeof h === 'object' && h !== null ? (h.number ?? h.actualNumber ?? 0) : 0);
+      score[number] =
+        (score[number] || 0) +
+        (16 - Math.min(index, 15));
+    });
+
+  // Sort favourite numbers
+  const sortedFav =
+    [...favPool].sort(
+      (a, b) =>
+        (score[b] || 0) -
+        (score[a] || 0)
+    );
+
+  // Sort opposite numbers
+  const sortedOpp =
+    [...oppPool].sort(
+      (a, b) =>
+        (score[b] || 0) -
+        (score[a] || 0)
+    );
+
+  // Don't repeat current opposite number
+  let favCandidates =
+    sortedFav.filter(
+      n => n !== currentOpp
+    );
+
+  if (favCandidates.length === 0)
+    favCandidates = sortedFav;
+
+  // Don't repeat current favourite
+  // and selected favourite
+  let oppCandidates =
+    sortedOpp.filter(
+      n =>
+        n !== currentFav &&
+        n !== favCandidates[0]
+    );
+
+  if (oppCandidates.length === 0)
+    oppCandidates =
+      sortedOpp.filter(
+        n => n !== favCandidates[0]
+      );
+
+  if (oppCandidates.length === 0)
+    oppCandidates = sortedOpp;
+
+  return {
+    favNumber: favCandidates[0],
+    oppNumber: oppCandidates[0]
+  };
+}
+
+// FINAL DISPLAY / COPY OUTPUT (AS PROVIDED BY USER)
+export function buildPredictionText(
+  currentPeriod: string,
+  prediction: any
+) {
+  const period =
+    currentPeriod || "PENDING";
+
+  const target =
+    prediction.predictedSize || prediction.prediction;
+
+  const fav =
+    prediction.favNumber ?? prediction.favorNumber ?? 7;
+
+  const opp =
+    prediction.oppNumber ?? prediction.oppositeNumber ?? 2;
+
+  const pattern =
+    prediction.activePattern?.name ||
+    prediction.patternName ||
+    "1000-PERIOD STATISTICAL SCAN";
+
+  const action =
+    prediction.isSkipRecommended
+      ? "ACTION: SKIP (SAFE PLAY / TRAP NODE)"
+      : "ACTION: PLAY / BET NOW (HIGH CONFIDENCE · SAFE SETUP)";
+
+  const risk =
+    prediction.isSkipRecommended
+      ? "Risk Level: HIGH RISK TRAP (SKIP ADVISORY)"
+      : "Risk Level: LOW RISK (NORMAL WINNING PATTERN)";
+
+  const bet =
+    prediction.isSkipRecommended
+      ? "Bet Sizing: 0X (SKIP ROUND / SAVE CAPITAL)"
+      : "Bet Sizing: 1X UNIT (SAFE BET / CONFIDENT)";
+
+  return `
+亗 𝗕ᴍᴡ 亗 𝗢ʙʟɪᴠɪᴏɴ 亗 𝗩𝟯 亗
+
+Period: ${period}
+
+Target: ${target}
+
+Favor: ${fav}
+
+Opp: ${opp}
+
+Pattern: ${pattern}
+
+${risk}
+
+${bet}
+
+V3 Quantum Neural:
+${
+  prediction.isTwoLevelVerified
+    ? "100% VERIFIED ✓"
+    : "VERIFIED"
+}
+
+${action}
+`;
+}
+
+// RESULT CHECKING LOGIC (AS PROVIDED BY USER)
+export function checkResult(
+  predictedSize: 'BIG' | 'SMALL',
+  favNumber: number,
+  oppNumber: number,
+  actualNumber: number
+) {
+  const actualSize =
+    getSize(actualNumber);
+
+  let result = "loss";
+
+  if (
+    actualNumber === favNumber ||
+    actualNumber === oppNumber
+  ) {
+    result = "jackpot";
+  } else if (
+    predictedSize === actualSize
+  ) {
+    result = "win";
+  } else {
+    result = "loss";
+  }
+
+  return result;
+}
+
+// LEVEL LOGIC (AS PROVIDED BY USER)
+export function getCurrentLevel(history: any[]) {
+  let losses = 0;
+
+  for (const item of history) {
+    const res = typeof item === 'object' && item !== null ? (item.result || (item.isWin ? 'win' : 'loss')) : 'win';
+    if (
+      res === "win" ||
+      res === "jackpot"
+    ) {
+      break;
+    }
+
+    if (
+      res === "loss"
+    ) {
+      losses++;
+    }
+  }
+
+  return Math.min(
+    4,
+    losses + 1
+  );
+}
+
+// LEVEL MULTIPLIER (AS PROVIDED BY USER)
+export function getLevelMultiplier(level: number) {
+  if (level === 1)
+    return "1X";
+
+  if (level === 2)
+    return "3X";
+
+  if (level === 3)
+    return "8X";
+
+  return "24X";
+}
+
+// LEVEL DEFENSE (AS PROVIDED BY USER)
+export function getLevelDefenseStatus(level: number) {
+  if (level === 1)
+    return "L1 STANDARD (OPTIMAL ALPHA)";
+
+  if (level === 2)
+    return "L2 RECOVERY MATRIX (95% CAP DEFENSE)";
+
+  return "L3 EMERGENCY SHIELD";
 }

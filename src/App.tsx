@@ -21,7 +21,6 @@ import { WinModal } from './components/WinModal';
 import { JackpotModal } from './components/JackpotModal';
 import { FloatingGameRunner } from './components/FloatingGameRunner';
 import { LoginGate } from './components/LoginGate';
-import { AdminPanelModal } from './components/AdminPanelModal';
 import { checkDeviceAuthorizationStatus } from './utils/licenseSecurity';
 
 export default function App() {
@@ -30,9 +29,6 @@ export default function App() {
     const status = checkDeviceAuthorizationStatus();
     return !status.authorized;
   });
-
-  // Master Admin Panel State
-  const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
 
   // Cycle locked strictly to WinGo 1M
   const currentCycle = '1m';
@@ -534,7 +530,6 @@ export default function App() {
         soundEnabled={soundEnabled}
         onToggleSound={handleToggleSound}
         onOpenThemeModal={() => setIsThemeModalOpen(true)}
-        onOpenAdminPanel={() => setIsAdminPanelOpen(true)}
         currentTheme={currentTheme}
       />
 
@@ -631,12 +626,6 @@ export default function App() {
         actualNumber={jackpotModalState.actualNumber}
         actualSize={jackpotModalState.actualSize}
         matchedType={jackpotModalState.matchedType}
-      />
-
-      {/* Secret Master Admin Panel Modal */}
-      <AdminPanelModal
-        isOpen={isAdminPanelOpen}
-        onClose={() => setIsAdminPanelOpen(false)}
       />
 
       {/* Authorization Key Gate */}

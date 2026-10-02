@@ -31,6 +31,23 @@ export interface PredictionResult {
   trapDefenseMode?: 'TRAP_BUSTER_ARMED' | 'FAKEOUT_BYPASS' | 'EXHAUSTION_SHIELD' | 'DRAGON_LOCK' | 'SAFE_FLOW';
   scanStatus?: 'DRAGON_LOCK' | 'DRAGON_BREAK_DEEP_SCAN' | 'PATTERN_MATCH_LOCK' | 'SPECIAL_RULE_LOCK' | 'EQUILIBRIUM_SCAN';
   deepAnalysisSummary?: string;
+
+  // V3 Multi-Level Consensus & Defense Protocol properties
+  isTwoLevelVerified?: boolean;
+  isSkipRecommended?: boolean;
+  actionText?: string;
+  skipReason?: string;
+  riskLevel?: string;
+  recommendedUnit?: string;
+  transferDescription?: string;
+  currentLevel?: number;
+  levelMultiplier?: string;
+  levelDefenseStatus?: string;
+  markovProb?: {
+    bigPct: number;
+    smallPct: number;
+  };
+  logicConsensus?: any;
 }
 
 export interface HistoryRecord {

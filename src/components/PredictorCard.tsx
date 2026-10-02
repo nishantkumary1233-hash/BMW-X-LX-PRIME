@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { PredictionResult, GameCycle } from '../types';
 import { BALL_IMAGES } from '../constants/ballImages';
 import { formatSignalForCopy } from '../utils/unicodeFont';
+import { buildPredictionText } from '../utils/patternEngine';
 import { sounds } from '../utils/soundEffects';
 import {
   DragonAuraIcon,
@@ -49,23 +50,9 @@ export const PredictorCard: React.FC<PredictorCardProps> = ({
   const handleCopy = () => {
     if (!prediction) return;
     sounds.playClick();
-    const favorNum = prediction.favorNumber ?? prediction.targetNumber;
-    const oppNum = prediction.oppositeNumber ?? prediction.secondaryNumber;
+    const formatted = buildPredictionText(prediction.period, prediction);
 
-    const formatted = formatSignalForCopy({
-      period: prediction.period,
-      cycle: currentCycle,
-      prediction: prediction.prediction,
-      targetNumber: favorNum,
-      secondaryNumber: oppNum,
-      favorNumber: favorNum,
-      oppositeNumber: oppNum,
-      confidence: prediction.confidence,
-      pattern: prediction.patternName,
-      ruleCode: prediction.ruleCode,
-    });
-
-    navigator.clipboard.writeText(formatted).then(() => {
+    navigator.clipboard.writeText(formatted.trim()).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2200);
     });
@@ -306,6 +293,28 @@ export const PredictorCard: React.FC<PredictorCardProps> = ({
               JACKPOT SYSTEM: EITHER <strong className="text-amber-300">FAVOR (#{favorNum})</strong> OR <strong className="text-cyan-300">OPPOSITE (#{oppNum})</strong> MATCH = <strong className="text-yellow-300 font-orbitron">JACKPOT 9X</strong>!
             </span>
           </div>
+
+          {/* V3 Quantum Neural Consensus Ribbon */}
+          <div className="mt-2.5 p-2 rounded-xl bg-black/40 border border-amber-500/30 flex items-center justify-between text-[9px] font-mono">
+            <div className="flex items-center gap-1.5">
+              <span className={`px-2 py-0.5 rounded-full font-orbitron font-black text-[8px] ${prediction?.isSkipRecommended ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'}`}>
+                {prediction?.actionText ?? 'PLAY'}
+              </span>
+              <span className="text-amber-300 font-bold">
+                {prediction?.recommendedUnit ?? '1X UNIT'}
+              </span>
+            </div>
+            <div className="flex items-center gap-1 text-[8.5px] font-orbitron text-cyan-300">
+              <span>V3 QUANTUM:</span>
+              <strong className="text-emerald-400">{prediction?.isTwoLevelVerified ? '100% VERIFIED ✓' : 'VERIFIED'}</strong>
+            </div>
+          </div>
+
+          {prediction?.isSkipRecommended && prediction?.skipReason && (
+            <div className="mt-1.5 p-2 rounded-xl bg-rose-500/15 border border-rose-500/30 text-[8.5px] font-mono text-rose-300 text-center">
+              ⚠️ {prediction.skipReason}
+            </div>
+          )}
         </div>
 
         {/* AI Confidence Meter Bar - Compact Glass */}

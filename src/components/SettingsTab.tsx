@@ -174,21 +174,13 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
           Zero build steps, zero npm dependencies! Ready to run offline or push directly to GitHub Pages.
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
           <button
             onClick={handleDownloadHtml}
             className="p-2.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black font-orbitron font-black text-[10px] uppercase flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition"
           >
             <Download className="w-3.5 h-3.5 text-black" />
-            <span>PREDICTOR HTML</span>
-          </button>
-
-          <button
-            onClick={handleDownloadAdminHtml}
-            className="p-2.5 rounded-xl bg-black/60 border border-amber-400/40 hover:bg-amber-400/10 text-amber-300 font-orbitron font-black text-[10px] uppercase flex items-center justify-center gap-1.5 active:scale-95 transition"
-          >
-            <KeyRound className="w-3.5 h-3.5 text-amber-400" />
-            <span>ADMIN HTML</span>
+            <span>EXACT PREDICTOR HTML</span>
           </button>
 
           <button
