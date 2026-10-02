@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>☠︎ BMW X BOSS LX 〆 MASTER ADMIN CONTROL PANEL ☠︎</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Orbitron:wght@600;800;900&family=Outfit:wght@400;600;700;900&family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * { font-family: 'Outfit', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+    body { background-color: #020308; color: #f8fafc; overflow-x: hidden; }
+    .font-orbitron { font-family: 'Orbitron', monospace; }
+    .font-rajdhani { font-family: 'Rajdhani', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    @keyframes shine-sweep { 0% { transform: translateX(-150%); } 50%, 100% { transform: translateX(150%); } }
+    .scrollbar-none::-webkit-scrollbar { display: none; }
+    .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col relative selection:bg-amber-400/30 selection:text-amber-200">
+
+  <!-- Background Layer -->
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden bg-gradient-to-b from-[#090b18] via-[#04060f] to-[#010206]">
+    <div class="absolute top-1/4 -left-32 w-80 h-80 rounded-full bg-violet-600/15 blur-[120px]"></div>
+    <div class="absolute top-1/2 -right-32 w-80 h-80 rounded-full bg-amber-500/15 blur-[120px]"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="relative z-20 border-b border-white/10 bg-black/70 backdrop-blur-xl px-4 py-3">
+    <div class="max-w-md mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 via-amber-600 to-amber-700 p-0.5 shadow-[0_0_15px_rgba(245,158,11,0.5)] flex items-center justify-center font-black text-black text-sm">
+          ☠︎
+        </div>
+        <div class="flex flex-col">
+          <span class="font-orbitron font-black text-xs sm:text-sm text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600">
+            MASTER ADMIN CONTROL PANEL
+          </span>
+          <div class="flex items-center gap-1.5 text-[8.5px] font-mono text-slate-400">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+            <span class="text-emerald-400 font-bold">CRYPTO LICENSE VAULT · STANDALONE</span>
+          </div>
+        </div>
+      </div>
+      <button id="btn-sound" class="w-8 h-8 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-300">
+        🔊
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="relative z-10 flex-1 max-w-md w-full mx-auto p-3 sm:p-4 space-y-3">
+    
+    <!-- Auth Gate -->
+    <div id="auth-gate-box" class="p-5 rounded-3xl bg-[#080d22]/90 border border-amber-500/40 text-center space-y-3.5 shadow-2xl">
+      <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 p-0.5 flex items-center justify-center text-black font-black text-2xl shadow-lg">
+        🔒
+      </div>
+      <div>
+        <h2 class="font-orbitron font-black text-sm text-amber-300 tracking-wider">
+          MASTER ADMIN AUTHENTICATION
+        </h2>
+        <p class="text-[10px] font-rajdhani text-slate-400 mt-0.5">
+          Enter master passphrase to unlock crypto key generation terminal.
+        </p>
+      </div>
+
+      <div class="space-y-2 text-left">
+        <label class="block text-[8.5px] font-orbitron font-bold text-slate-400">ADMIN PASSPHRASE</label>
+        <input id="admin-pass-input" type="password" placeholder="ENTER MASTER PASS (TRY: 909090)" class="w-full bg-black/60 border border-white/15 focus:border-amber-400 rounded-xl px-3.5 py-2.5 font-mono text-xs text-white outline-none">
+        <div id="auth-err-msg" class="text-[10px] font-mono text-rose-400 hidden font-bold text-center"></div>
+      </div>
+
+      <button id="btn-auth-admin" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black font-orbitron font-black text-xs uppercase shadow-md active:scale-95 transition">
+        AUTHENTICATE TERMINAL ⚡
+      </button>
+    </div>
+
+    <!-- Admin Console (Hidden until authenticated) -->
+    <div id="admin-console" class="hidden space-y-3">
+      
+      <!-- Key Generator Card -->
+      <div class="p-4 rounded-3xl bg-[#090d24]/90 border border-amber-400/40 space-y-3 shadow-xl">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-orbitron font-black text-amber-300 tracking-wider uppercase flex items-center gap-1.5">
+            🔑 VIP KEY FORGE (SINGLE DEVICE LOCKED)
+          </span>
+          <span class="text-[8px] font-mono text-emerald-400 font-bold bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-500/30">
+            ANTI-CRACK ACTIVE
+          </span>
+        </div>
+
+        <div>
+          <label class="block text-[8.5px] font-orbitron font-bold text-slate-400 mb-1">SELECT VALIDITY DURATION</label>
+          <div class="grid grid-cols-4 gap-1">
+            <button class="dur-btn py-1.5 rounded-xl bg-black/60 border border-white/10 text-[9px] font-orbitron font-bold text-slate-300" data-dur="1D">1 DAY</button>
+            <button class="dur-btn py-1.5 rounded-xl bg-amber-400 text-black text-[9px] font-orbitron font-bold" data-dur="7D">7 DAYS</button>
+            <button class="dur-btn py-1.5 rounded-xl bg-black/60 border border-white/10 text-[9px] font-orbitron font-bold text-slate-300" data-dur="30D">30 DAYS</button>
+            <button class="dur-btn py-1.5 rounded-xl bg-black/60 border border-white/10 text-[9px] font-orbitron font-bold text-slate-300" data-dur="LIFE">LIFETIME</button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[8.5px] font-orbitron font-bold text-slate-400 mb-1 flex items-center justify-between">
+            <span>MAX ALLOWED DEVICES</span>
+            <span id="selected-dev-label" class="text-cyan-300 font-bold">1 Device</span>
+          </label>
+          <div class="grid grid-cols-5 gap-1">
+            <button class="dev-btn py-1.5 rounded-xl bg-cyan-400 text-black text-[8.5px] font-orbitron font-bold" data-dev="1">1 DEV</button>
+            <button class="dev-btn py-1.5 rounded-xl bg-black/60 border border-white/10 text-[8.5px] font-orbitron font-bold text-slate-300" data-dev="2">2 DEV</button>
+            <button class="dev-btn py-1.5 rounded-xl bg-black/60 border border-white/10 text-[8.5px] font-orbitron font-bold text-slate-300" data-dev="3">3 DEV</button>
+            <button class="dev-btn py-1.5 rounded-xl bg-black/60 border border-white/10 text-[8.5px] font-orbitron font-bold text-slate-300" data-dev="5">5 DEV</button>
+            <button class="dev-btn py-1.5 rounded-xl bg-black/60 border border-white/10 text-[8.5px] font-orbitron font-bold text-slate-300" data-dev="999">UNLIMITED</button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[8.5px] font-orbitron font-bold text-slate-400 mb-1">CLIENT LABEL / NOTE (OPTIONAL)</label>
+          <input id="key-note-input" type="text" placeholder="e.g. VIP Member Rohan" class="w-full bg-black/60 border border-white/10 focus:border-amber-400 rounded-xl px-3 py-1.5 font-mono text-xs text-white outline-none">
+        </div>
+
+        <button id="btn-forge-key" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black font-orbitron font-black text-xs uppercase shadow-md active:scale-95 transition">
+          ⚡ GENERATE VIP CRYPTO KEY
+        </button>
+
+        <!-- Output Box -->
+        <div id="new-key-output-box" class="hidden p-3 rounded-2xl bg-amber-500/15 border border-amber-400/60 space-y-2">
+          <div class="flex items-center justify-between text-[9px] font-mono text-amber-300">
+            <span class="font-bold">NEW KEY FORGED:</span>
+            <span id="new-key-dur-label">7 Days</span>
+          </div>
+          <div id="new-key-text" class="p-2 rounded-xl bg-black/80 border border-amber-400/40 text-center font-orbitron font-black text-sm text-amber-300 tracking-wider select-all">
+            BMWX-7D-BOSS-8882
+          </div>
+          <button id="btn-copy-new-key" class="w-full py-1.5 rounded-xl bg-amber-400 text-black font-orbitron font-bold text-[10px] active:scale-95 transition">
+            COPY VIP LICENSE KEY
+          </button>
+        </div>
+      </div>
+
+      <!-- Device Authorizer (@BMWXNARUTO & @LX_OWNER0001) -->
+      <div class="p-4 rounded-3xl bg-[#080d22]/90 border border-cyan-400/40 space-y-2.5 shadow-xl">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-orbitron font-black text-cyan-300 tracking-wider uppercase">
+            📱 AUTHORIZE DEVICE ID (@BMWXNARUTO / @LX_OWNER0001)
+          </span>
+          <span class="text-[8px] font-mono text-emerald-400 font-bold bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-500/30">
+            STRICT 1-DEVICE ONLY
+          </span>
+        </div>
+
+        <div class="space-y-1.5">
+          <input id="manual-dev-input" type="text" placeholder="PASTE DEVICE ID (FROM @BMWXNARUTO OR @LX_OWNER0001)" class="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs font-mono text-amber-300 outline-none uppercase font-bold">
+          
+          <div class="grid grid-cols-5 gap-1">
+            <button class="days-btn py-1 rounded-lg bg-black/60 border border-white/10 text-[8px] font-orbitron font-bold text-slate-300" data-days="1">1D</button>
+            <button class="days-btn py-1 rounded-lg bg-amber-400 text-black text-[8px] font-orbitron font-bold" data-days="7">7D</button>
+            <button class="days-btn py-1 rounded-lg bg-black/60 border border-white/10 text-[8px] font-orbitron font-bold text-slate-300" data-days="15">15D</button>
+            <button class="days-btn py-1 rounded-lg bg-black/60 border border-white/10 text-[8px] font-orbitron font-bold text-slate-300" data-days="30">30D</button>
+            <button class="days-btn py-1 rounded-lg bg-black/60 border border-white/10 text-[8px] font-orbitron font-bold text-slate-300" data-days="3650">LIFE</button>
+          </div>
+
+          <button id="btn-authorize-device" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-400 via-teal-500 to-emerald-600 text-black font-orbitron font-black text-xs uppercase shadow-md active:scale-95 transition">
+            ⚡ AUTHORIZE (STRICT 1 DEVICE ONLY)
+          </button>
+        </div>
+      </div>
+
+      <!-- Registered Clients & Devices Registry (Shows Email, Password & Device ID) -->
+      <div class="p-3.5 rounded-2xl bg-white/[0.02] border border-white/10 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-orbitron font-black text-slate-300 tracking-wider uppercase">
+            REGISTERED CLIENTS (<span id="dev-count">0</span>)
+          </span>
+          <button id="btn-refresh-devices" class="text-slate-400 hover:text-white text-[9px] font-mono">
+            🔄 REFRESH
+          </button>
+        </div>
+        <div id="devices-list" class="space-y-2 max-h-60 overflow-y-auto scrollbar-none pr-1"></div>
+      </div>
+
+      <!-- Standalone Export Suite -->
+      <div class="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-2 text-xs font-mono">
+        <span class="text-[10px] font-orbitron font-black text-cyan-300 tracking-wider uppercase block">
+          OFFLINE / GITHUB EXPORTS
+        </span>
+        <div class="grid grid-cols-2 gap-1.5">
+          <button id="btn-download-self" class="p-2 rounded-xl bg-black/60 border border-amber-400/40 text-amber-300 text-[10px] font-bold">
+            📥 DOWNLOAD ADMIN HTML
+          </button>
+          <button id="btn-download-predictor" class="p-2 rounded-xl bg-black/60 border border-cyan-400/40 text-cyan-300 text-[10px] font-bold">
+            📥 DOWNLOAD PREDICTOR HTML
+          </button>
+        </div>
+      </div>
+
+      <!-- License Vault -->
+      <div class="p-3.5 rounded-2xl bg-white/[0.02] border border-white/10 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-orbitron font-black text-slate-300 tracking-wider uppercase">
+            LICENSE VAULT (<span id="vault-count">0</span>)
+          </span>
+          <button id="btn-refresh-vault" class="text-slate-400 hover:text-white text-[9px] font-mono">
+            🔄 REFRESH
+          </button>
+        </div>
+        <div id="vault-list" class="space-y-1.5 max-h-56 overflow-y-auto scrollbar-none pr-1"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="relative z-10 border-t border-white/10 py-3 text-center text-[9px] font-mono text-slate-500">
+    ☠︎ 𝗕ᴍᴡ 〆 𝗫 〆 𝗟x 〆 𝗣ʀᴇᴅɪᴄᴛᴏʀ 𝟲.𝟮 ☠︎ · MASTER ADMIN TERMINAL
+  </footer>
+
+  <script>
+    // Audio engine
+    class AudioSynthesizer {
+      constructor() { this.ctx = null; this.enabled = true; }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+      }
+      playClick() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(300, this.ctx.currentTime + 0.05);
+        gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.05);
+      }
+      playWin() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+          gain.gain.setValueAtTime(0.2, now + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.08 + 0.25);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.08);
+          osc.stop(now + idx * 0.08 + 0.25);
+        });
+      }
+      playLoss() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        [320, 240, 160].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+          gain.gain.setValueAtTime(0.15, now + idx * 0.1);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.1 + 0.2);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.1);
+          osc.stop(now + idx * 0.1 + 0.2);
+        });
+      }
+    }
+    const audio = new AudioSynthesizer();
+
+    // Checksum & Generator
+    function computeKeyChecksum(payload) {
+      let h = 0x5a3f12b7;
+      for (let i = 0; i < payload.length; i++) {
+        h = (h << 5) - h + payload.charCodeAt(i);
+        h = h & h;
+      }
+      return Math.abs(h).toString(16).toUpperCase().padStart(4, '0').slice(-4);
+    }
+
+    function generateEntropy(length) {
+      const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+      let res = '';
+      for (let i = 0; i < length; i++) {
+        res += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return res;
+    }
+
+    const DURATION_DATA = {
+      '1D': { label: '1 Day (24 Hours)', ms: 24 * 60 * 60 * 1000 },
+      '7D': { label: '7 Days (VIP Week)', ms: 7 * 24 * 60 * 60 * 1000 },
+      '30D': { label: '30 Days (VIP Month)', ms: 30 * 24 * 60 * 60 * 1000 },
+      'LIFE': { label: 'Lifetime VIP Pass', ms: 365 * 100 * 24 * 60 * 60 * 1000 }
+    };
+
+    let selectedDur = '7D';
+    let selectedDev = 1;
+    let licenses = JSON.parse(localStorage.getItem('_bmwx_v6_licenses_vault') || '[]');
+
+    // Dev limit buttons
+    document.querySelectorAll('.dev-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        audio.playClick();
+        document.querySelectorAll('.dev-btn').forEach(b => {
+          b.className = 'dev-btn py-1.5 rounded-xl bg-black/60 border border-white/10 text-[8.5px] font-orbitron font-bold text-slate-300';
+        });
+        btn.className = 'dev-btn py-1.5 rounded-xl bg-cyan-400 text-black text-[8.5px] font-orbitron font-bold';
+        selectedDev = parseInt(btn.getAttribute('data-dev')) || 1;
+        document.getElementById('selected-dev-label').innerText = selectedDev >= 999 ? 'Unlimited Devices' : `${selectedDev} Device(s)`;
+      });
+    });
+
+    if (!licenses.length) {
+      licenses = [
+        { key: 'BMWX-1D-VIP9-7771', duration: '1D', durationLabel: '1 Day (24 Hours)', maxDevices: 1, boundDeviceIds: [], status: 'UNUSED', note: 'Master Demo 1-Day Pass' },
+        { key: 'BMWX-7D-BOSS-8882', duration: '7D', durationLabel: '7 Days (VIP Week)', maxDevices: 1, boundDeviceIds: [], status: 'UNUSED', note: 'Master Demo 7-Day Pass' },
+        { key: 'BMWX-30D-ELITE-9993', duration: '30D', durationLabel: '30 Days (VIP Month)', maxDevices: 1, boundDeviceIds: [], status: 'UNUSED', note: 'Master Demo 30-Day Pass' },
+        { key: 'BMWX-LIFE-ROYAL-0000', duration: 'LIFE', durationLabel: 'Lifetime VIP Pass', maxDevices: 999, boundDeviceIds: [], status: 'UNUSED', note: 'Owner Lifetime Master Key' }
+      ];
+      localStorage.setItem('_bmwx_v6_licenses_vault', JSON.stringify(licenses));
+    }
+
+    // DOM Elements
+    const authBox = document.getElementById('auth-gate-box');
+    const adminConsole = document.getElementById('admin-console');
+    const passInput = document.getElementById('admin-pass-input');
+    const authErrMsg = document.getElementById('auth-err-msg');
+
+    document.getElementById('btn-auth-admin').addEventListener('click', () => {
+      const val = passInput.value.trim();
+      if (val === '909090' || val === 'BMWX-ADMIN-ROOT' || val === 'ADMIN777') {
+        audio.playWin();
+        authBox.classList.add('hidden');
+        adminConsole.classList.remove('hidden');
+        renderVault();
+      } else {
+        audio.playLoss();
+        authErrMsg.innerText = 'ACCESS DENIED: INVALID PASSPHRASE';
+        authErrMsg.classList.remove('hidden');
+        setTimeout(() => authErrMsg.classList.add('hidden'), 3000);
+      }
+    });
+
+    // Duration buttons
+    document.querySelectorAll('.dur-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        audio.playClick();
+        document.querySelectorAll('.dur-btn').forEach(b => {
+          b.className = 'dur-btn py-1.5 rounded-xl bg-black/60 border border-white/10 text-[9px] font-orbitron font-bold text-slate-300';
+        });
+        btn.className = 'dur-btn py-1.5 rounded-xl bg-amber-400 text-black text-[9px] font-orbitron font-bold';
+        selectedDur = btn.getAttribute('data-dur');
+      });
+    });
+
+    // Generate Key
+    document.getElementById('btn-forge-key').addEventListener('click', () => {
+      audio.playWin();
+      const entropy = generateEntropy(6);
+      const payload = `BMWX-${selectedDur}-${entropy}`;
+      const checksum = computeKeyChecksum(payload);
+      const key = `BMWX-${selectedDur}-${entropy.slice(0,3)}${checksum.slice(0,1)}-${entropy.slice(3)}${checksum.slice(1)}`;
+      const note = document.getElementById('key-note-input').value.trim() || `Generated on ${new Date().toLocaleDateString()}`;
+
+      const rec = {
+        key,
+        duration: selectedDur,
+        durationLabel: DURATION_DATA[selectedDur].label,
+        maxDevices: selectedDev,
+        boundDeviceIds: [],
+        status: 'UNUSED',
+        note
+      };
+
+      licenses.unshift(rec);
+      localStorage.setItem('_bmwx_v6_licenses_vault', JSON.stringify(licenses));
+
+      document.getElementById('new-key-dur-label').innerText = `${DURATION_DATA[selectedDur].label} (Max ${selectedDev >= 999 ? 'Unlimited' : selectedDev} Dev)`;
+      document.getElementById('new-key-text').innerText = key;
+      document.getElementById('new-key-output-box').classList.remove('hidden');
+      document.getElementById('key-note-input').value = '';
+      renderVault();
+    });
+
+    // Copy new key
+    document.getElementById('btn-copy-new-key').addEventListener('click', () => {
+      audio.playClick();
+      const txt = document.getElementById('new-key-text').innerText;
+      navigator.clipboard.writeText(txt).then(() => {
+        document.getElementById('btn-copy-new-key').innerText = 'COPIED TO CLIPBOARD! ✓';
+        setTimeout(() => {
+          document.getElementById('btn-copy-new-key').innerText = 'COPY VIP LICENSE KEY';
+        }, 2000);
+      });
+    });
+
+    function renderVault() {
+      const list = document.getElementById('vault-list');
+      document.getElementById('vault-count').innerText = licenses.length;
+      list.innerHTML = licenses.map(l => `
+        <div class="p-2 rounded-xl bg-black/60 border border-white/5 flex items-center justify-between text-[9px] font-mono">
+          <div class="flex flex-col min-w-0 pr-1">
+            <div class="flex items-center gap-1.5">
+              <span class="font-orbitron font-bold text-amber-300 truncate">${l.key}</span>
+              <span class="px-1.5 py-0.2 rounded text-[7.5px] font-bold ${l.status === 'ACTIVE' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : l.status === 'UNUSED' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-rose-500/20 text-rose-300'}">${l.status}</span>
+            </div>
+            <div class="text-[8px] text-slate-400 flex items-center gap-1.5 mt-0.5">
+              <span>${l.durationLabel}</span>
+              <span class="text-cyan-300 font-bold">Dev: ${(l.boundDeviceIds || []).length}/${l.maxDevices >= 999 ? '∞' : (l.maxDevices || 1)}</span>
+              ${l.note ? '<span>• ' + l.note + '</span>' : ''}
+            </div>
+          </div>
+          <div class="flex items-center gap-1 shrink-0">
+            <button onclick="copyKeyText('${l.key}')" class="p-1.5 rounded-lg bg-white/5 text-slate-300">📋</button>
+            ${l.status !== 'REVOKED' ? `<button onclick="revokeKey('${l.key}')" class="p-1.5 rounded-lg bg-rose-500/20 text-rose-400">🗑️</button>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Devices & User Registry
+    let selectedDays = 7;
+    document.querySelectorAll('.days-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        audio.playClick();
+        document.querySelectorAll('.days-btn').forEach(b => {
+          b.className = 'days-btn py-1 rounded-lg bg-black/60 border border-white/10 text-[8px] font-orbitron font-bold text-slate-300';
+        });
+        btn.className = 'days-btn py-1 rounded-lg bg-amber-400 text-black text-[8px] font-orbitron font-bold';
+        selectedDays = parseInt(btn.getAttribute('data-days')) || 7;
+      });
+    });
+
+    document.getElementById('btn-authorize-device').addEventListener('click', () => {
+      const devId = document.getElementById('manual-dev-input').value.trim();
+      if (!devId) return;
+      audio.playWin();
+      let devices = JSON.parse(localStorage.getItem('_bmwx_v6_devices_vault') || '[]');
+      const now = Date.now();
+      const expiresAt = selectedDays >= 3650 ? null : now + selectedDays * 24 * 60 * 60 * 1000;
+      const label = selectedDays >= 3650 ? 'Lifetime Access' : `${selectedDays} Day(s)`;
+
+      let rec = devices.find(d => d.deviceId === devId);
+      if (rec) {
+        rec.status = 'AUTHORIZED';
+        rec.daysGranted = selectedDays;
+        rec.durationLabel = label;
+        rec.expiresAt = expiresAt;
+      } else {
+        devices.unshift({
+          deviceId: devId,
+          email: 'admin-direct@bmwx.vip',
+          password: 'DIRECT_AUTHORIZATION',
+          registeredAt: now,
+          authorizedAt: now,
+          expiresAt: expiresAt,
+          daysGranted: selectedDays,
+          durationLabel: label,
+          status: 'AUTHORIZED'
+        });
+      }
+      localStorage.setItem('_bmwx_v6_devices_vault', JSON.stringify(devices));
+      document.getElementById('manual-dev-input').value = '';
+      renderDevices();
+    });
+
+    function renderDevices() {
+      const devices = JSON.parse(localStorage.getItem('_bmwx_v6_devices_vault') || '[]');
+      document.getElementById('dev-count').innerText = devices.length;
+      const list = document.getElementById('devices-list');
+      list.innerHTML = devices.map(d => `
+        <div class="p-2.5 rounded-xl bg-black/60 border border-white/5 space-y-1.5 text-[9px] font-mono">
+          <div class="flex items-center justify-between">
+            <span class="font-orbitron font-bold text-amber-300">${d.deviceId}</span>
+            <span class="px-1.5 py-0.2 rounded text-[7.5px] font-bold ${d.status === 'AUTHORIZED' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'}">${d.status}</span>
+          </div>
+          <div class="p-1.5 rounded-lg bg-black/40 text-[8px] flex justify-between">
+            <span>EMAIL: <strong class="text-white">${d.email}</strong></span>
+            <span>PASS: <strong class="text-amber-300">${d.password}</strong></span>
+          </div>
+          <div class="flex items-center justify-between pt-1">
+            <span class="text-[8px] text-slate-400">${d.durationLabel || 'Pending'}</span>
+            <div class="flex gap-1">
+              <button onclick="approveDeviceDirect('${d.deviceId}', 7)" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[8px] font-bold">+7D</button>
+              <button onclick="approveDeviceDirect('${d.deviceId}', 30)" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[8px] font-bold">+30D</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    window.approveDeviceDirect = function(id, days) {
+      audio.playWin();
+      let devices = JSON.parse(localStorage.getItem('_bmwx_v6_devices_vault') || '[]');
+      const rec = devices.find(x => x.deviceId === id);
+      if (rec) {
+        rec.status = 'AUTHORIZED';
+        rec.daysGranted = days;
+        rec.durationLabel = `${days} Days`;
+        rec.expiresAt = Date.now() + days * 86400000;
+        localStorage.setItem('_bmwx_v6_devices_vault', JSON.stringify(devices));
+        renderDevices();
+      }
+    };
+
+    document.getElementById('btn-refresh-devices').addEventListener('click', () => {
+      audio.playClick();
+      renderDevices();
+    });
+
+    window.copyKeyText = function(k) {
+      audio.playClick();
+      navigator.clipboard.writeText(k);
+    };
+
+    window.revokeKey = function(k) {
+      audio.playLoss();
+      const it = licenses.find(x => x.key === k);
+      if (it) it.status = 'REVOKED';
+      localStorage.setItem('_bmwx_v6_licenses_vault', JSON.stringify(licenses));
+      renderVault();
+    };
+
+    document.getElementById('btn-refresh-vault').addEventListener('click', () => {
+      audio.playClick();
+      licenses = JSON.parse(localStorage.getItem('_bmwx_v6_licenses_vault') || '[]');
+      renderVault();
+    });
+
+    // Downloads
+    document.getElementById('btn-download-self').addEventListener('click', () => {
+      audio.playClick();
+      const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'bmw-admin-panel.html';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    document.getElementById('btn-download-predictor').addEventListener('click', () => {
+      audio.playClick();
+      const a = document.createElement('a');
+      a.href = '/bmw-x-predictor.html';
+      a.download = 'bmw-x-predictor.html';
+      a.click();
+    });
+
+    document.getElementById('btn-sound').addEventListener('click', (e) => {
+      audio.enabled = !audio.enabled;
+      e.target.innerText = audio.enabled ? '🔊' : '🔇';
+    });
+  </script>
+</body>
+</html>

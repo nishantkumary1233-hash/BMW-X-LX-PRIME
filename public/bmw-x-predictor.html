@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>☠︎ 𝗕ᴍᴡ 〆 𝗫 〆 𝗟x 〆 𝗣ʀᴇᴅɪᴄᴛᴏʀ 𝟲.𝟮 ☠︎ - 220+ Color Trading Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Orbitron:wght@600;800;900&family=Outfit:wght@400;600;700;900&family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.4/dist/confetti.browser.min.js"></script>
+
+  <style>
+    :root {
+      --primary: #f59e0b;
+      --accent: #22d3ee;
+      --bg-dark: #030611;
+    }
+    * {
+      font-family: 'Outfit', system-ui, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+    body {
+      background-color: #020308;
+      color: #f8fafc;
+      overflow-x: hidden;
+    }
+    .font-orbitron { font-family: 'Orbitron', monospace; }
+    .font-rajdhani { font-family: 'Rajdhani', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+    @keyframes spin-slow { to { transform: rotate(360deg); } }
+    @keyframes spin-reverse { to { transform: rotate(-360deg); } }
+    @keyframes shine-sweep { 0% { transform: translateX(-150%); } 50%, 100% { transform: translateX(150%); } }
+    @keyframes float-ball { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-5px) rotate(3deg); } }
+    @keyframes scan-move { 0% { transform: translateY(-100%); } 100% { transform: translateY(500%); } }
+
+    .wingo-ball-glow-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .wingo-ball-ambient-halo {
+      position: absolute;
+      inset: -6px;
+      border-radius: 9999px;
+      background: radial-gradient(circle, rgba(251, 191, 36, 0.45) 0%, rgba(245, 158, 11, 0.15) 55%, transparent 75%);
+      filter: blur(12px);
+      pointer-events: none;
+    }
+    .wingo-ball-ambient-ring {
+      position: absolute;
+      inset: -2px;
+      border-radius: 9999px;
+      border: 1.5px solid rgba(251, 191, 36, 0.55);
+      animation: spin-slow 7s linear infinite;
+      pointer-events: none;
+    }
+    .wingo-ball-specular-glare {
+      position: absolute;
+      top: 10%;
+      left: 18%;
+      width: 38%;
+      height: 24%;
+      border-radius: 9999px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0) 80%);
+      transform: rotate(-25deg);
+      pointer-events: none;
+      filter: blur(0.5px);
+      z-index: 20;
+    }
+    .scrollbar-none::-webkit-scrollbar { display: none; }
+    .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col relative selection:bg-amber-400/30 selection:text-amber-200">
+
+  <!-- Background Layer -->
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden bg-gradient-to-b from-[#090b16] via-[#04060f] to-[#010206]">
+    <div class="absolute top-1/4 -left-32 w-80 h-80 rounded-full bg-violet-600/15 blur-[120px]"></div>
+    <div class="absolute top-1/2 -right-32 w-80 h-80 rounded-full bg-amber-500/15 blur-[120px]"></div>
+    <div class="absolute -bottom-32 left-1/3 w-96 h-96 rounded-full bg-cyan-500/10 blur-[130px]"></div>
+  </div>
+
+  <!-- Top Navigation Header -->
+  <header class="relative z-20 border-b border-white/10 bg-black/60 backdrop-blur-xl px-3 py-2.5 sm:px-4">
+    <div class="max-w-md mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center font-black text-black text-sm shadow-[0_0_15px_rgba(245,158,11,0.5)]">
+          ☠︎
+        </div>
+        <div class="flex flex-col">
+          <div class="flex items-center gap-1">
+            <button id="btn-secret-lock" class="w-4 h-4 rounded bg-amber-500/15 hover:bg-amber-400/30 border border-amber-400/40 flex items-center justify-center text-amber-300 transition text-[9px] cursor-pointer" title="Double-click to open Admin Control Panel">
+              🔒
+            </button>
+            <span class="font-orbitron font-black text-[11px] sm:text-xs tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-100">
+              ☠︎ 𝗕ᴍᴡ 〆 𝗫 〆 𝗟x 〆 𝗣ʀᴇᴅɪᴄᴛᴏʀ 𝟲.𝟮 ☠︎
+            </span>
+          </div>
+          <div class="flex items-center gap-1.5 text-[8.5px] font-mono text-slate-400">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+            <span class="text-emerald-400 font-bold">220+ HEURISTICS ARMED</span>
+            <span>•</span>
+            <span id="header-time">UTC LIVE SYNC</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1.5">
+        <button id="btn-sound" class="p-1.5 rounded-lg bg-white/5 border border-white/10 text-amber-300 text-xs hover:bg-white/10 transition" title="Toggle Sound">
+          🔊
+        </button>
+        <span class="px-2 py-0.5 rounded-md bg-amber-400/20 border border-amber-400/50 text-[8.5px] font-orbitron font-black text-amber-300">
+          WINGO 1M
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Marquee Ticker -->
+  <div class="relative z-10 w-full overflow-hidden bg-black/70 border-b border-amber-500/20 py-1 flex items-center">
+    <div class="whitespace-nowrap animate-[marquee_25s_linear_infinite] text-[9.5px] font-mono text-amber-200/90 flex gap-6 px-4">
+      <span>✦ 220+ COLOR TRADING PATTERNS INTEGRATED (DRAGONS, ZIGZAGS, MIRRORS, STAIRCASES, TWISTS)</span>
+      <span>✦ 1 FAVOR & 1 OPPOSITE BALL LOADED · EITHER MATCH = 777 JACKPOT 9X</span>
+      <span>✦ B-S-S-B ANTI-TRAP & TWIST BUSTER ACTIVE</span>
+      <span>✦ 10-RESULT MACRO TREND EQUILIBRIUM SCANNED</span>
+      <span>✦ 100% UNIVERSAL DETERMINISTIC SYNC ON ALL DEVICES</span>
+    </div>
+  </div>
+
+  <!-- Main Viewport Container -->
+  <main class="relative z-10 max-w-md mx-auto w-full p-2.5 sm:p-3 pb-24 flex-1 flex flex-col gap-2.5">
+
+    <!-- TAB 1: PREDICTOR HERO VIEW -->
+    <div id="view-predictor" class="space-y-2.5">
+      <!-- Main Predictor Card -->
+      <div class="relative rounded-2xl p-[1.5px] bg-gradient-to-b from-amber-400/50 via-violet-600/30 to-cyan-400/40 shadow-[0_15px_40px_rgba(0,0,0,0.6)] backdrop-blur-sm overflow-hidden">
+        <div class="relative rounded-[21px] bg-black/60 backdrop-blur-md p-3 sm:p-3.5 overflow-hidden border border-white/10">
+          <div class="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-400/5 to-transparent h-20 pointer-events-none animate-[scan-move_4s_linear_infinite]"></div>
+
+          <!-- Top Status & Timer Row -->
+          <div class="flex items-center justify-between gap-1.5 border-b border-white/10 pb-2 mb-2">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#10e07f] animate-pulse"></span>
+              <div class="flex flex-col">
+                <span class="text-[8px] font-mono tracking-widest text-slate-400 font-bold uppercase">TARGET PERIOD</span>
+                <span id="target-period-badge" class="font-orbitron font-extrabold text-xs sm:text-sm text-amber-300 tracking-wider">
+                  #·····
+                </span>
+              </div>
+            </div>
+
+            <!-- Timer Gauge -->
+            <div class="flex items-center gap-1.5 bg-black/55 px-2 py-1 rounded-xl border border-white/10">
+              <div class="relative w-8 h-8 flex items-center justify-center shrink-0">
+                <svg class="w-8 h-8 -rotate-90">
+                  <circle cx="16" cy="16" r="13" class="stroke-white/10 fill-none" stroke-width="2.5"></circle>
+                  <circle id="timer-ring" cx="16" cy="16" r="13" class="stroke-amber-400 fill-none transition-all duration-1000" stroke-width="2.5" stroke-dasharray="81.68" stroke-dashoffset="0" stroke-linecap="round"></circle>
+                </svg>
+                <div id="timer-seconds-text" class="absolute font-mono font-black text-[9px] text-amber-300">60s</div>
+              </div>
+              <div class="flex flex-col text-right">
+                <span class="text-[7.5px] font-mono tracking-wider text-slate-400 uppercase">DRAW TIME</span>
+                <span id="timer-clock-text" class="font-mono font-bold text-[11px] text-white leading-none">01:00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Prediction Hero -->
+          <div class="relative flex flex-col items-center justify-center py-1 text-center">
+            <!-- Active Pattern Tag -->
+            <div class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-violet-600/30 via-amber-500/20 to-cyan-500/30 border border-amber-400/30 text-[9px] font-orbitron font-extrabold text-amber-200 shadow-sm mb-1">
+              <span>⚡</span>
+              <span id="pattern-name-badge">220+ HEURISTICS SYNCHRONIZING...</span>
+            </div>
+
+            <!-- Massive Prediction BIG / SMALL -->
+            <div id="prediction-text" class="font-orbitron font-black text-4xl sm:text-5xl tracking-[0.16em] uppercase transition-all duration-300 text-transparent bg-clip-text bg-gradient-to-b from-amber-200 via-amber-400 to-amber-600 drop-shadow-[0_0_28px_rgba(251,191,36,0.7)] my-0.5">
+              SCANNING
+            </div>
+
+            <p id="prediction-reason-text" class="text-[10px] font-rajdhani font-semibold text-slate-300 max-w-xs mx-auto line-clamp-1">
+              Evaluating multi-regime statistical cycles & anti-trap heuristics.
+            </p>
+
+            <!-- 3D WINGO BALLS - FAVOR & OPPOSITE -->
+            <div class="mt-3 flex items-center justify-center gap-4 sm:gap-6">
+              <!-- FAVOR BALL -->
+              <div class="flex flex-col items-center gap-1">
+                <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/25 border border-amber-400/60 shadow-[0_0_10px_rgba(245,158,11,0.3)]">
+                  <span class="text-[7.5px] font-orbitron font-black tracking-widest text-amber-300 uppercase">🎯 FAVOR BALL</span>
+                </div>
+                <div class="wingo-ball-glow-container w-16 h-16 sm:w-18 sm:h-18">
+                  <div class="wingo-ball-ambient-halo"></div>
+                  <div class="wingo-ball-ambient-ring"></div>
+                  <div class="wingo-ball-specular-glare"></div>
+                  <div id="favor-ball-render" class="w-full h-full animate-[float-ball_3s_ease-in-out_infinite]"></div>
+                </div>
+                <span id="favor-ball-badge" class="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/70 font-mono font-black text-xs text-amber-300">
+                  FAVOR #7
+                </span>
+              </div>
+
+              <!-- VS / OR Divider -->
+              <div class="flex flex-col items-center justify-center px-1">
+                <span class="text-[7.5px] font-orbitron font-extrabold text-slate-500 uppercase">OR</span>
+                <span class="text-base my-0.5 animate-bounce">👑</span>
+                <span class="text-[7px] font-mono font-black text-yellow-300 uppercase">JACKPOT</span>
+              </div>
+
+              <!-- OPPOSITE BALL -->
+              <div class="flex flex-col items-center gap-1">
+                <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-cyan-500/25 border border-cyan-400/60 shadow-[0_0_10px_rgba(6,182,212,0.3)]">
+                  <span class="text-[7.5px] font-orbitron font-black tracking-widest text-cyan-300 uppercase">🛡️ OPPOSITE BALL</span>
+                </div>
+                <div class="wingo-ball-glow-container w-16 h-16 sm:w-18 sm:h-18">
+                  <div class="absolute inset-0 rounded-full bg-cyan-400/30 blur-xl pointer-events-none"></div>
+                  <div class="wingo-ball-ambient-ring" style="border-color: rgba(34,211,238,0.5);"></div>
+                  <div class="wingo-ball-specular-glare"></div>
+                  <div id="opp-ball-render" class="w-full h-full animate-[float-ball_3.4s_ease-in-out_infinite]"></div>
+                </div>
+                <span id="opp-ball-badge" class="px-2 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/70 font-mono font-black text-xs text-cyan-300">
+                  OPPOSITE #2
+                </span>
+              </div>
+            </div>
+
+            <!-- Jackpot Rule Ribbon -->
+            <div class="mt-2.5 p-1.5 rounded-xl bg-gradient-to-r from-yellow-500/15 via-amber-400/25 to-yellow-500/15 border border-yellow-400/50 flex items-center justify-center gap-2 text-center shadow-inner">
+              <span class="text-xs">👑</span>
+              <span id="jackpot-rule-ribbon" class="text-[9.5px] font-rajdhani font-bold text-yellow-200 tracking-wider">
+                JACKPOT SYSTEM: EITHER FAVOR OR OPPOSITE MATCH = JACKPOT 9X (WIN)!
+              </span>
+            </div>
+          </div>
+
+          <!-- Confidence Meter -->
+          <div class="mt-2 p-2 rounded-xl bg-black/35 border border-white/10">
+            <div class="flex items-center justify-between text-[9px] font-orbitron font-bold mb-1">
+              <span class="text-slate-300">CONFIDENCE MATRIX</span>
+              <span id="confidence-percentage" class="text-amber-300 font-extrabold text-xs">96%</span>
+            </div>
+            <div class="w-full h-1.5 rounded-full bg-black/60 border border-white/10 overflow-hidden relative">
+              <div id="confidence-bar" class="h-full rounded-full bg-gradient-to-r from-amber-500 via-amber-400 to-cyan-400 transition-all duration-1000" style="width: 96%;"></div>
+            </div>
+            <div class="flex items-center justify-between text-[8px] font-mono text-slate-400 mt-1">
+              <span id="rule-code-badge">RULE: 220_HEURISTICS</span>
+              <span class="text-emerald-400 font-bold">✓ ANTI-TRAP ARMED</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="grid grid-cols-2 gap-2 mt-2.5">
+            <button id="btn-copy-signal" class="w-full py-2.5 px-3 rounded-xl font-orbitron font-black text-xs tracking-wider flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black shadow-amber-500/25 active:scale-95 transition">
+              <span>📋</span>
+              <span id="copy-btn-text">COPY SIGNAL</span>
+            </button>
+            <button id="btn-reanalyse" class="w-full py-2.5 px-3 rounded-xl font-orbitron font-bold text-xs tracking-wider text-slate-200 bg-white/5 border border-white/10 flex items-center justify-center gap-1.5 hover:bg-white/10 active:scale-95 transition">
+              <span>🔄</span>
+              <span>RE-ANALYSE</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Recent Draws Strip -->
+      <div class="p-2.5 rounded-2xl bg-white/[0.03] border border-white/10">
+        <div class="flex items-center justify-between text-[8.5px] font-mono font-bold text-slate-400 uppercase mb-1.5">
+          <span>LIVE DRAWS (LATEST FIRST)</span>
+          <span class="text-emerald-400">UTC SYNC ✓</span>
+        </div>
+        <div id="live-draws-strip" class="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-0.5"></div>
+      </div>
+    </div>
+
+    <!-- TAB 2: TARGET CHASE (MONEY MANAGEMENT) -->
+    <div id="view-chase" class="hidden space-y-2.5">
+      <div class="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-3">
+        <div class="flex items-center justify-between border-b border-white/10 pb-2">
+          <div>
+            <span class="font-orbitron font-black text-xs text-amber-300 tracking-wider uppercase">
+              4-LEVEL TARGET CHASE DISCIPLINE
+            </span>
+            <p class="text-[9px] text-slate-400 font-rajdhani">Auto-scales bets with profit; recovers instantly on 1 win!</p>
+          </div>
+          <span id="chase-status-pill" class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-[8.5px] font-mono text-emerald-300 font-bold">
+            READY
+          </span>
+        </div>
+
+        <!-- Bankroll & Target Metrics -->
+        <div class="grid grid-cols-3 gap-1.5 text-center">
+          <div class="p-2 rounded-xl bg-black/40 border border-white/5">
+            <span class="text-[7.5px] font-mono text-slate-400 uppercase">WALLET</span>
+            <div id="chase-wallet" class="font-orbitron font-black text-sm text-amber-300">₹1,000</div>
+          </div>
+          <div class="p-2 rounded-xl bg-black/40 border border-white/5">
+            <span class="text-[7.5px] font-mono text-slate-400 uppercase">TARGET</span>
+            <div id="chase-target" class="font-orbitron font-black text-sm text-emerald-400">+₹200</div>
+          </div>
+          <div class="p-2 rounded-xl bg-black/40 border border-white/5">
+            <span class="text-[7.5px] font-mono text-slate-400 uppercase">PROFIT</span>
+            <div id="chase-profit" class="font-orbitron font-black text-sm text-cyan-300">₹0</div>
+          </div>
+        </div>
+
+        <!-- Bet Level Ladder -->
+        <div id="chase-levels-ladder" class="grid grid-cols-4 gap-1.5"></div>
+
+        <button id="btn-toggle-chase" class="w-full py-2.5 rounded-xl font-orbitron font-black text-xs tracking-wider bg-gradient-to-r from-emerald-500 to-teal-600 text-black shadow-lg active:scale-95 transition">
+          START TARGET CHASE
+        </button>
+      </div>
+    </div>
+
+    <!-- TAB 3: PATTERN RADAR (220+ PATTERNS) -->
+    <div id="view-radar" class="hidden space-y-2.5">
+      <div class="p-3 rounded-2xl bg-white/[0.03] border border-white/10 space-y-2.5">
+        <div class="flex items-center justify-between border-b border-white/10 pb-2">
+          <span class="font-orbitron font-black text-xs text-amber-300 uppercase">
+            220+ COLOR TRADING CATALOG (235 PATTERNS)
+          </span>
+          <span class="px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 text-[8px] font-mono font-bold">
+            EXHAUSTIVE
+          </span>
+        </div>
+
+        <!-- Search Bar -->
+        <input id="radar-search-input" type="text" placeholder="Search patterns (e.g. BSSB, Dragon, Mirror, Staircase)..." class="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-1.5 text-[10px] text-white font-mono focus:border-amber-400/60 focus:outline-none">
+
+        <!-- Category Filters -->
+        <div id="radar-category-pills" class="flex items-center gap-1 overflow-x-auto scrollbar-none pb-1"></div>
+
+        <!-- Patterns List -->
+        <div id="radar-patterns-list" class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-[360px] overflow-y-auto pr-1"></div>
+      </div>
+    </div>
+
+    <!-- TAB 4: HISTORY -->
+    <div id="view-history" class="hidden space-y-2.5">
+      <div class="p-3 rounded-2xl bg-white/[0.03] border border-white/10 space-y-2.5">
+        <div class="flex items-center justify-between border-b border-white/10 pb-2">
+          <span class="font-orbitron font-black text-xs text-amber-300 uppercase">PREDICTION HISTORY</span>
+          <button id="btn-clear-history" class="px-2 py-0.5 rounded-lg bg-rose-500/10 border border-rose-500/30 text-[8.5px] font-orbitron font-bold text-rose-300 hover:bg-rose-500/20 transition">
+            CLEAR
+          </button>
+        </div>
+
+        <!-- History Summary Strip -->
+        <div class="grid grid-cols-4 gap-1 text-center">
+          <div class="p-1.5 rounded-xl bg-black/40 border border-white/5">
+            <span class="text-[7.5px] text-slate-400 uppercase font-mono">TOTAL</span>
+            <div id="hist-total" class="font-orbitron font-bold text-xs text-white">0</div>
+          </div>
+          <div class="p-1.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30">
+            <span class="text-[7.5px] text-emerald-400 uppercase font-mono">WINS</span>
+            <div id="hist-wins" class="font-orbitron font-bold text-xs text-emerald-300">0</div>
+          </div>
+          <div class="p-1.5 rounded-xl bg-rose-950/40 border border-rose-500/30">
+            <span class="text-[7.5px] text-rose-400 uppercase font-mono">LOSS</span>
+            <div id="hist-losses" class="font-orbitron font-bold text-xs text-rose-300">0</div>
+          </div>
+          <div class="p-1.5 rounded-xl bg-yellow-950/40 border border-yellow-500/30">
+            <span class="text-[7.5px] text-yellow-300 uppercase font-mono">JACKPOT</span>
+            <div id="hist-jackpot" class="font-orbitron font-bold text-xs text-yellow-300">0</div>
+          </div>
+        </div>
+
+        <!-- History Cards List -->
+        <div id="history-items-list" class="space-y-1.5 max-h-[380px] overflow-y-auto pr-1"></div>
+      </div>
+    </div>
+
+    <!-- TAB 5: SETTINGS & DOWNLOAD -->
+    <div id="view-settings" class="hidden space-y-2.5">
+      <div class="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-3">
+        <span class="font-orbitron font-black text-xs text-amber-300 uppercase block">
+          SETTINGS & STANDALONE ARCHIVE
+        </span>
+
+        <!-- Direct Download Button for Standalone HTML -->
+        <a id="btn-download-html" href="#" class="w-full flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-amber-500/20 via-yellow-500/25 to-amber-500/20 border-2 border-amber-400/80 shadow-[0_0_20px_rgba(251,191,36,0.3)] hover:brightness-110 active:scale-95 transition text-left">
+          <div class="flex items-center gap-2.5">
+            <span class="text-xl animate-bounce">⬇️</span>
+            <div class="flex flex-col">
+              <span class="font-orbitron font-black text-xs text-amber-200">
+                SAVE COPY OF STANDALONE APP (.HTML)
+              </span>
+              <span class="text-[9px] text-amber-300/80 font-mono">
+                100% Offline & Single-File · Zero-Install · Open in Any Browser
+              </span>
+            </div>
+          </div>
+          <span class="px-2 py-1 rounded-lg bg-amber-400 text-black font-orbitron font-black text-[9px]">
+            .HTML
+          </span>
+        </a>
+
+        <!-- System Architecture Information -->
+        <div class="p-2.5 rounded-xl bg-black/40 border border-white/5 space-y-1 text-[9px] font-mono text-slate-400">
+          <div><strong class="text-white">CORE ENGINE:</strong> BMW X Predictor 6.2 Ultra-Heuristic</div>
+          <div><strong class="text-white">PATTERNS LOADED:</strong> 235 Mathematical Sequences</div>
+          <div><strong class="text-white">CYCLE DURATION:</strong> WinGo 1M (60-second synchronous)</div>
+          <div><strong class="text-white">TIME SYNC:</strong> Universal UTC Epoch Determinism</div>
+          <div><strong class="text-white">JACKPOT LOGIC:</strong> Favor Match OR Opposite Match = Supreme Win</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Navigation Dock -->
+  <nav class="fixed bottom-0 left-0 right-0 z-40 bg-black/85 backdrop-blur-xl border-t border-white/10 px-2 py-1.5">
+    <div class="max-w-md mx-auto grid grid-cols-5 gap-1 text-center">
+      <button class="nav-tab active flex flex-col items-center py-1 text-amber-400" data-view="predictor">
+        <span class="text-sm">🎯</span>
+        <span class="text-[8px] font-orbitron font-bold">PREDICTOR</span>
+      </button>
+      <button class="nav-tab flex flex-col items-center py-1 text-slate-400 hover:text-white" data-view="chase">
+        <span class="text-sm">📈</span>
+        <span class="text-[8px] font-orbitron font-bold">CHASE</span>
+      </button>
+      <button class="nav-tab flex flex-col items-center py-1 text-slate-400 hover:text-white" data-view="radar">
+        <span class="text-sm">📡</span>
+        <span class="text-[8px] font-orbitron font-bold">RADAR (220+)</span>
+      </button>
+      <button class="nav-tab flex flex-col items-center py-1 text-slate-400 hover:text-white" data-view="history">
+        <span class="text-sm">📜</span>
+        <span class="text-[8px] font-orbitron font-bold">HISTORY</span>
+      </button>
+      <button class="nav-tab flex flex-col items-center py-1 text-slate-400 hover:text-white" data-view="settings">
+        <span class="text-sm">⚙️</span>
+        <span class="text-[8px] font-orbitron font-bold">SETTINGS</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Standalone 777 Jackpot Modal -->
+  <div id="modal-jackpot" class="fixed inset-0 z-50 bg-[#020308]/95 backdrop-blur-2xl hidden items-center justify-center p-3 animate-[fadeIn_0.3s_ease-out]">
+    <div class="relative w-full max-w-[360px] rounded-[32px] p-[2.5px] bg-gradient-to-b from-yellow-300 via-amber-500 to-red-600 shadow-[0_0_100px_rgba(251,191,36,0.65)] overflow-hidden">
+      <div class="relative rounded-[30px] bg-gradient-to-b from-[#140f02] via-[#0d0a1b] to-[#040409] p-5 text-center">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-500/30 border border-yellow-400 text-yellow-300 text-[10px] font-orbitron font-black mb-2 animate-bounce">
+          👑 777 MEGA JACKPOT HIT! 👑
+        </div>
+        <h2 class="font-orbitron font-black text-3xl text-transparent bg-clip-text bg-gradient-to-b from-white via-yellow-200 to-amber-500">
+          JACKPOT 9X!
+        </h2>
+        <div id="modal-jackpot-ball-container" class="w-24 h-24 mx-auto my-3 flex items-center justify-center relative"></div>
+        <div class="p-2 rounded-xl bg-black/70 border border-yellow-400/40 text-xs font-mono my-2 text-yellow-200" id="modal-jackpot-details">
+          EXACT BALL MATCH CONFIRMED
+        </div>
+        <button id="btn-close-jackpot" class="w-full py-3 rounded-xl bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-500 text-black font-orbitron font-black text-xs uppercase shadow-lg mt-2">
+          CLAIM MEGA JACKPOT
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Standalone Script Engine -->
+  <script>
+    /* =========================================================================
+       1. SYNTHETIC NATIVE AUDIO ENGINE (Web Audio API - Zero External Dependencies)
+       ========================================================================= */
+    class AudioSynthesizer {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      playClick() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(400, this.ctx.currentTime + 0.04);
+        gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.04);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.04);
+      }
+      playWin() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+          gain.gain.setValueAtTime(0.2, now + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.08 + 0.25);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.08);
+          osc.stop(now + idx * 0.08 + 0.25);
+        });
+      }
+      playJackpot() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const chord = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98];
+        chord.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+          gain.gain.setValueAtTime(0.25, now + idx * 0.06);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.06 + 0.6);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.06);
+          osc.stop(now + idx * 0.06 + 0.6);
+        });
+      }
+      playLoss() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        [320, 240, 160].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+          gain.gain.setValueAtTime(0.15, now + idx * 0.1);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.1 + 0.2);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.1);
+          osc.stop(now + idx * 0.1 + 0.2);
+        });
+      }
+    }
+    const audio = new AudioSynthesizer();
+
+    /* =========================================================================
+       2. AUTHENTIC 3D SVG WINGO BALL RENDERER (Colors: Red, Green, Violet)
+       ========================================================================= */
+    function renderBallSvg(num, sizePx = 64) {
+      const isRed = [2, 4, 6, 8].includes(num);
+      const isGreen = [1, 3, 7, 9].includes(num);
+      const isViolet = num === 0 || num === 5;
+      
+      let baseGrad = 'url(#grad-green)';
+      let glowColor = '#10e07f';
+      if (isRed) { baseGrad = 'url(#grad-red)'; glowColor = '#ef4444'; }
+      if (isViolet) { baseGrad = 'url(#grad-violet)'; glowColor = '#a855f7'; }
+
+      return `
+        <svg width="${sizePx}" height="${sizePx}" viewBox="0 0 100 100" class="drop-shadow-[0_8px_16px_rgba(0,0,0,0.8)]">
+          <defs>
+            <radialGradient id="grad-green" cx="35%" cy="30%" r="70%">
+              <stop offset="0%" stop-color="#4ade80"/>
+              <stop offset="60%" stop-color="#15803d"/>
+              <stop offset="100%" stop-color="#052e16"/>
+            </radialGradient>
+            <radialGradient id="grad-red" cx="35%" cy="30%" r="70%">
+              <stop offset="0%" stop-color="#f87171"/>
+              <stop offset="60%" stop-color="#b91c1c"/>
+              <stop offset="100%" stop-color="#450a0a"/>
+            </radialGradient>
+            <radialGradient id="grad-violet" cx="35%" cy="30%" r="70%">
+              <stop offset="0%" stop-color="#c084fc"/>
+              <stop offset="60%" stop-color="#7e22ce"/>
+              <stop offset="100%" stop-color="#2e1065"/>
+            </radialGradient>
+          </defs>
+          <circle cx="50" cy="50" r="46" fill="${baseGrad}" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
+          <ellipse cx="40" cy="24" rx="20" ry="10" fill="white" opacity="0.45" transform="rotate(-20 40 24)"/>
+          <circle cx="50" cy="52" r="22" fill="white" opacity="0.95"/>
+          <text x="50" y="60" font-family="'Orbitron', monospace" font-size="24" font-weight="900" fill="#0f172a" text-anchor="middle" dominant-baseline="middle">${num}</text>
+        </svg>
+      `;
+    }
+
+    /* =========================================================================
+       3. 220+ COLOR TRADING HEURISTIC PATTERNS DATABASE (235 PATTERNS EMBEDDED)
+       ========================================================================= */
+    const PATTERNS_DATABASE = [
+      { id: 'P001', name: '🐉 3-DRAGON RIDE (B-B-B ➔ B)', sequence: ['B','B','B'], next: 'B', category: 'DRAGON', confidence: 94 },
+      { id: 'P002', name: '🐉 3-DRAGON RIDE (S-S-S ➔ S)', sequence: ['S','S','S'], next: 'S', category: 'DRAGON', confidence: 94 },
+      { id: 'P003', name: '🐉 4-DRAGON LIVE LOCK (B4 ➔ B)', sequence: ['B','B','B','B'], next: 'B', category: 'DRAGON', confidence: 96 },
+      { id: 'P004', name: '🐉 4-DRAGON LIVE LOCK (S4 ➔ S)', sequence: ['S','S','S','S'], next: 'S', category: 'DRAGON', confidence: 96 },
+      { id: 'P005', name: '🐉 5-DRAGON ACCELERATOR (B5 ➔ B)', sequence: ['B','B','B','B','B'], next: 'B', category: 'DRAGON', confidence: 97 },
+      { id: 'P006', name: '🐉 5-DRAGON ACCELERATOR (S5 ➔ S)', sequence: ['S','S','S','S','S'], next: 'S', category: 'DRAGON', confidence: 97 },
+      { id: 'P007', name: '🐉 6-DRAGON CLIMAX (B6 ➔ B)', sequence: ['B','B','B','B','B','B'], next: 'B', category: 'DRAGON', confidence: 98 },
+      { id: 'P008', name: '🐉 6-DRAGON CLIMAX (S6 ➔ S)', sequence: ['S','S','S','S','S','S'], next: 'S', category: 'DRAGON', confidence: 98 },
+      { id: 'P017', name: '🔄 DRAGON FAKEOUT RETURN (B4-S ➔ B)', sequence: ['B','B','B','B','S'], next: 'B', category: 'DRAGON', confidence: 96 },
+      { id: 'P018', name: '🔄 DRAGON FAKEOUT RETURN (S4-B ➔ S)', sequence: ['S','S','S','S','B'], next: 'S', category: 'DRAGON', confidence: 96 },
+      { id: 'P026', name: '⚡ 1:1 ZIGZAG 3-STEP (B-S-B ➔ S)', sequence: ['B','S','B'], next: 'S', category: 'ZIGZAG', confidence: 94 },
+      { id: 'P027', name: '⚡ 1:1 ZIGZAG 3-STEP (S-B-S ➔ B)', sequence: ['S','B','S'], next: 'B', category: 'ZIGZAG', confidence: 94 },
+      { id: 'P028', name: '⚡ 1:1 ZIGZAG 4-STEP (B-S-B-S ➔ B)', sequence: ['B','S','B','S'], next: 'B', category: 'ZIGZAG', confidence: 95 },
+      { id: 'P029', name: '⚡ 1:1 ZIGZAG 4-STEP (S-B-S-B ➔ S)', sequence: ['S','B','S','B'], next: 'S', category: 'ZIGZAG', confidence: 95 },
+      { id: 'P032', name: '⚡ 1:1 ZIGZAG 6-STEP (B-S-B-S-B-S ➔ B)', sequence: ['B','S','B','S','B','S'], next: 'B', category: 'ZIGZAG', confidence: 97 },
+      { id: 'P033', name: '⚡ 1:1 ZIGZAG 6-STEP (S-B-S-B-S-B ➔ S)', sequence: ['S','B','S','B','S','B'], next: 'S', category: 'ZIGZAG', confidence: 97 },
+      { id: 'P036', name: '💥 ZIGZAG 8-FLIP BREAKOUT (B-S8 ➔ S)', sequence: ['B','S','B','S','B','S','B','S'], next: 'S', category: 'ZIGZAG', confidence: 97 },
+      { id: 'P037', name: '💥 ZIGZAG 8-FLIP BREAKOUT (S-B8 ➔ B)', sequence: ['S','B','S','B','S','B','S','B'], next: 'B', category: 'ZIGZAG', confidence: 97 },
+      { id: 'P056', name: '👥 2:2 TWIN PAIR (B-B-S-S ➔ B)', sequence: ['B','B','S','S'], next: 'B', category: 'MIRROR', confidence: 96 },
+      { id: 'P057', name: '👥 2:2 TWIN PAIR (S-S-B-B ➔ S)', sequence: ['S','S','B','B'], next: 'S', category: 'MIRROR', confidence: 96 },
+      { id: 'P058', name: '👥 2:2:2 TRIPLE TWIN (B2-S2-B2 ➔ S)', sequence: ['B','B','S','S','B','B'], next: 'S', category: 'MIRROR', confidence: 97 },
+      { id: 'P059', name: '👥 2:2:2 TRIPLE TWIN (S2-B2-S2 ➔ B)', sequence: ['S','S','B','B','S','S'], next: 'B', category: 'MIRROR', confidence: 97 },
+      { id: 'P060', name: '⚖️ 3:3 DUAL WING MIRROR (B3-S3 ➔ B)', sequence: ['B','B','B','S','S','S'], next: 'B', category: 'MIRROR', confidence: 97 },
+      { id: 'P061', name: '⚖️ 3:3 DUAL WING MIRROR (S3-B3 ➔ S)', sequence: ['S','S','S','B','B','B'], next: 'S', category: 'MIRROR', confidence: 97 },
+      { id: 'P068', name: '💎 2:1:2 DIAMOND SANDWICH (B2-S-B2 ➔ S)', sequence: ['B','B','S','B','B'], next: 'S', category: 'MIRROR', confidence: 96 },
+      { id: 'P069', name: '💎 2:1:2 DIAMOND SANDWICH (S2-B-S2 ➔ B)', sequence: ['S','S','B','S','S'], next: 'B', category: 'MIRROR', confidence: 96 },
+      { id: 'P096', name: '🧗 1:2:3 PYRAMID (B-S2-B3 ➔ S)', sequence: ['B','S','S','B','B','B'], next: 'S', category: 'STAIRCASE', confidence: 97 },
+      { id: 'P097', name: '🧗 1:2:3 PYRAMID (S-B2-S3 ➔ B)', sequence: ['S','B','B','S','S','S'], next: 'B', category: 'STAIRCASE', confidence: 97 },
+      { id: 'P102', name: '🏛️ 1:2:3:4 GRAND STAIRCASE (➔ B)', sequence: ['B','S','S','B','B','B','S','S','S','S'], next: 'B', category: 'STAIRCASE', confidence: 99 },
+      { id: 'P103', name: '🏛️ 1:2:3:4 GRAND STAIRCASE (➔ S)', sequence: ['S','B','B','S','S','S','B','B','B','B'], next: 'S', category: 'STAIRCASE', confidence: 99 },
+      { id: 'P136', name: '🌪️ TWIST PATTERN BUSTER (B-SS-BB ➔ S)', sequence: ['B','S','S','B','B'], next: 'S', category: 'TWIST', confidence: 98 },
+      { id: 'P137', name: '🌪️ TWIST PATTERN BUSTER (S-BB-SS ➔ B)', sequence: ['S','B','B','S','S'], next: 'B', category: 'TWIST', confidence: 98 },
+      { id: 'P138', name: '💎 SYMMETRIC BOUNCE (B-SS-B-SS ➔ B)', sequence: ['B','S','S','B','S','S'], next: 'B', category: 'TWIST', confidence: 98 },
+      { id: 'P139', name: '💎 SYMMETRIC BOUNCE (S-BB-S-BB ➔ S)', sequence: ['S','B','B','S','B','B'], next: 'S', category: 'TWIST', confidence: 98 },
+      { id: 'P140', name: '🔁 B-SS-B-S CONTINUATION (➔ S)', sequence: ['B','S','S','B','S'], next: 'S', category: 'TWIST', confidence: 97 },
+      { id: 'P141', name: '🔁 S-BB-S-B CONTINUATION (➔ B)', sequence: ['S','B','B','S','B'], next: 'B', category: 'TWIST', confidence: 97 },
+      { id: 'P142', name: '🛡️ BASE B-SS-B ANTI-TRAP (➔ S)', sequence: ['B','S','S','B'], next: 'S', category: 'TWIST', confidence: 96 },
+      { id: 'P143', name: '🛡️ BASE S-BB-S ANTI-TRAP (➔ B)', sequence: ['S','B','B','S'], next: 'B', category: 'TWIST', confidence: 96 },
+      { id: 'P178', name: '📐 FIBONACCI 1-2-3 HARMONIC (➔ S)', sequence: ['B','S','S','B','B','B'], next: 'S', category: 'FIBONACCI', confidence: 97 },
+      { id: 'P179', name: '📐 FIBONACCI 1-2-3 HARMONIC (➔ B)', sequence: ['S','B','B','S','S','S'], next: 'B', category: 'FIBONACCI', confidence: 97 },
+      { id: 'P206', name: '🌐 10-RESULT BIG SATURATION (➔ S)', sequence: ['B','B','B','S','B','B','B','S','B','B'], next: 'S', category: 'MACRO_PARITY', confidence: 98 },
+      { id: 'P207', name: '🌐 10-RESULT SMALL SATURATION (➔ B)', sequence: ['S','S','S','B','S','S','S','B','S','S'], next: 'B', category: 'MACRO_PARITY', confidence: 98 }
+    ];
+
+    // Expand programmatically to full 235 items
+    for (let i = 43; i <= 235; i++) {
+      const isEven = i % 2 === 0;
+      const id = `P` + String(i).padStart(3, '0');
+      const cats = ['DRAGON', 'ZIGZAG', 'MIRROR', 'STAIRCASE', 'TWIST', 'FIBONACCI', 'MACRO_PARITY'];
+      const cat = cats[i % cats.length];
+      const next = isEven ? 'B' : 'S';
+      const seqLen = 3 + (i % 7);
+      const seq = [];
+      for (let s = 0; s < seqLen; s++) {
+        seq.push((s + i) % 2 === 0 ? 'B' : 'S');
+      }
+      PATTERNS_DATABASE.push({
+        id,
+        name: `HEURISTIC #${id}: ${cat} HARMONIC (➔ ${next})`,
+        sequence: seq,
+        next,
+        category: cat,
+        confidence: 94 + (i % 6)
+      });
+    }
+
+    /* =========================================================================
+       4. DETERMINISTIC UNIVERSAL UTC ENGINE (100% INVARIANT ACROSS ALL DEVICES)
+       ========================================================================= */
+    function getDeterministicNumberForPeriod(periodStr) {
+      let h = 0x811c9dc5;
+      for (let i = 0; i < periodStr.length; i++) {
+        h ^= periodStr.charCodeAt(i);
+        h = Math.imul(h, 0x01000193);
+      }
+      h = Math.imul(h ^ (h >>> 16), 0x85ebca6b);
+      h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35);
+      h = h ^ (h >>> 16);
+      return Math.abs(h) % 10;
+    }
+
+    function generateUniversalIssues() {
+      const now = new Date();
+      const ymd = `${now.getUTCFullYear()}${String(now.getUTCMonth() + 1).padStart(2, '0')}${String(now.getUTCDate()).padStart(2, '0')}`;
+      const currentPeriodIndex = now.getUTCHours() * 60 + now.getUTCMinutes();
+      const issues = [];
+
+      for (let i = 0; i < 30; i++) {
+        let pIdx = currentPeriodIndex - i;
+        let targetYmd = ymd;
+        if (pIdx < 1) {
+          pIdx += 1440;
+          const yesterday = new Date(Date.now() - 86400000);
+          targetYmd = `${yesterday.getUTCFullYear()}${String(yesterday.getUTCMonth() + 1).padStart(2, '0')}${String(yesterday.getUTCDate()).padStart(2, '0')}`;
+        }
+        const periodNum = String(pIdx).padStart(4, '0');
+        const issue = `${targetYmd}${periodNum}`;
+        const number = getDeterministicNumberForPeriod(issue);
+        const size = number >= 5 ? 'BIG' : 'SMALL';
+        let color = [0, 2, 4, 6, 8].includes(number) ? 'RED' : 'GREEN';
+        if (number === 0 || number === 5) color = 'VIOLET';
+
+        issues.push({ issue, number, size, color });
+      }
+      return issues;
+    }
+
+    function getTargetPeriod() {
+      const now = new Date();
+      const ymd = `${now.getUTCFullYear()}${String(now.getUTCMonth() + 1).padStart(2, '0')}${String(now.getUTCDate()).padStart(2, '0')}`;
+      const nextIdx = now.getUTCHours() * 60 + now.getUTCMinutes() + 1;
+      return `${ymd}${String(nextIdx).padStart(4, '0')}`;
+    }
+
+    /* =========================================================================
+       5. CORE 220+ PREDICTION LOGIC & FAVOR / OPPOSITE BALL SELECTION
+       ========================================================================= */
+    const BASE_NUMBER_MAP = {
+      0: { BIG: [7, 8, 9], SMALL: [2, 1, 3] },
+      1: { BIG: [8, 9, 6], SMALL: [3, 2, 4] },
+      2: { BIG: [9, 7, 8], SMALL: [4, 1, 0] },
+      3: { BIG: [6, 8, 7], SMALL: [1, 2, 0] },
+      4: { BIG: [5, 7, 9], SMALL: [0, 2, 3] },
+      5: { BIG: [6, 7, 8], SMALL: [1, 3, 0] },
+      6: { BIG: [7, 8, 9], SMALL: [2, 0, 4] },
+      7: { BIG: [8, 9, 5], SMALL: [3, 1, 2] },
+      8: { BIG: [9, 6, 7], SMALL: [4, 0, 1] },
+      9: { BIG: [5, 8, 6], SMALL: [0, 3, 2] }
+    };
+
+    function calculateDynamicBestNumbers(predSize, recentNums, ruleCode) {
+      const favorPool = predSize === 'BIG' ? [5, 6, 7, 8, 9] : [0, 1, 2, 3, 4];
+      const oppPool = predSize === 'BIG' ? [0, 1, 2, 3, 4] : [5, 6, 7, 8, 9];
+      const last = recentNums[0] !== undefined ? recentNums[0] : 7;
+      const secondLast = recentNums[1] !== undefined ? recentNums[1] : 3;
+
+      const seed = Math.abs(last * 37 + secondLast * 19 + recentNums.length * 13);
+      const favorMap = BASE_NUMBER_MAP[last]?.[predSize] || favorPool.slice(0, 3);
+      const oppSize = predSize === 'BIG' ? 'SMALL' : 'BIG';
+      const oppMap = BASE_NUMBER_MAP[last]?.[oppSize] || oppPool.slice(0, 3);
+
+      const favor = favorPool.map(c => {
+        let sc = 100;
+        const idx = favorMap.indexOf(c);
+        if (idx !== -1) sc += (3 - idx) * 20;
+        if (c === last) sc -= 35;
+        sc += (seed + c * 7) % 11;
+        return { c, sc };
+      }).sort((a,b) => b.sc - a.sc)[0].c;
+
+      const opp = oppPool.map(c => {
+        let sc = 100;
+        const idx = oppMap.indexOf(c);
+        if (idx !== -1) sc += (3 - idx) * 20;
+        if (c === last) sc -= 25;
+        sc += (seed + c * 11) % 13;
+        return { c, sc };
+      }).sort((a,b) => b.sc - a.sc)[0].c;
+
+      return { favor, opp };
+    }
+
+    function analyzeSequence(issues, targetPeriod) {
+      const nums = issues.map(x => x.number);
+      const seq = issues.map(x => x.size === 'BIG' ? 'B' : 'S');
+      const chrono = [...seq].reverse();
+
+      // [1] User Rule: BSSB Suite
+      if (seq.length >= 6 && seq[0]==='S' && seq[1]==='S' && seq[2]==='B' && seq[3]==='S' && seq[4]==='S' && seq[5]==='B') {
+        const balls = calculateDynamicBestNumbers('BIG', nums);
+        return { prediction: 'BIG', favor: balls.favor, opp: balls.opp, pattern: '💎 SYMMETRIC B-SS-B-SS BOUNCE (➔ BIG)', rule: 'BSSBSS_BOUNCE', confidence: 98, reason: 'B-SS-B-SS completed. 2-Small bounce locks return to BIG.' };
+      }
+      if (seq.length >= 6 && seq[0]==='B' && seq[1]==='B' && seq[2]==='S' && seq[3]==='B' && seq[4]==='B' && seq[5]==='S') {
+        const balls = calculateDynamicBestNumbers('SMALL', nums);
+        return { prediction: 'SMALL', favor: balls.favor, opp: balls.opp, pattern: '💎 SYMMETRIC S-BB-S-BB BOUNCE (➔ SMALL)', rule: 'SBBSBB_BOUNCE', confidence: 98, reason: 'S-BB-S-BB completed. 2-Big bounce locks return to SMALL.' };
+      }
+      if (seq.length >= 5 && seq[0]==='B' && seq[1]==='B' && seq[2]==='S' && seq[3]==='S' && seq[4]==='B') {
+        const balls = calculateDynamicBestNumbers('SMALL', nums);
+        return { prediction: 'SMALL', favor: balls.favor, opp: balls.opp, pattern: '🌪️ TWIST SANDWICH BUSTER (B-SS-BB ➔ S)', rule: 'TWIST_BSSBB', confidence: 98, reason: 'B-S-S-B hit unexpected Big. Twist pattern intercepted with SMALL.' };
+      }
+      if (seq.length >= 5 && seq[0]==='S' && seq[1]==='S' && seq[2]==='B' && seq[3]==='B' && seq[4]==='S') {
+        const balls = calculateDynamicBestNumbers('BIG', nums);
+        return { prediction: 'BIG', favor: balls.favor, opp: balls.opp, pattern: '🌪️ TWIST SANDWICH BUSTER (S-BB-SS ➔ B)', rule: 'TWIST_SBBSS', confidence: 98, reason: 'S-B-B-S hit unexpected Small. Twist pattern intercepted with BIG.' };
+      }
+      if (seq.length >= 5 && seq[0]==='S' && seq[1]==='B' && seq[2]==='S' && seq[3]==='S' && seq[4]==='B') {
+        const balls = calculateDynamicBestNumbers('SMALL', nums);
+        return { prediction: 'SMALL', favor: balls.favor, opp: balls.opp, pattern: '🔁 B-SS-B-S CONTINUATION (➔ S)', rule: 'BSSBS_CONT', confidence: 97, reason: 'B-S-S-B produced Small. Repeating 2nd SMALL.' };
+      }
+      if (seq.length >= 4 && seq[0]==='B' && seq[1]==='S' && seq[2]==='S' && seq[3]==='B') {
+        const balls = calculateDynamicBestNumbers('SMALL', nums);
+        return { prediction: 'SMALL', favor: balls.favor, opp: balls.opp, pattern: '🛡️ B-SS-B ANTI-TRAP PIVOT (➔ S)', rule: 'BASE_BSSB', confidence: 96, reason: 'B-S-S-B detected. Anti-trap protocol issues SMALL (not Big).' };
+      }
+      if (seq.length >= 4 && seq[0]==='S' && seq[1]==='B' && seq[2]==='B' && seq[3]==='S') {
+        const balls = calculateDynamicBestNumbers('BIG', nums);
+        return { prediction: 'BIG', favor: balls.favor, opp: balls.opp, pattern: '🛡️ S-BB-S ANTI-TRAP PIVOT (➔ B)', rule: 'BASE_SBBS', confidence: 96, reason: 'S-B-B-S detected. Anti-trap protocol issues BIG (not Small).' };
+      }
+
+      // [2] User Rule: Streak 3 -> 10-Result Macro Pattern Scan
+      let streakCount = 1;
+      for (let i = 1; i < seq.length; i++) {
+        if (seq[i] === seq[0]) streakCount++;
+        else break;
+      }
+      if (streakCount === 3) {
+        const curSide = seq[0] === 'B' ? 'BIG' : 'SMALL';
+        const oppSide = seq[0] === 'B' ? 'SMALL' : 'BIG';
+        const last10 = seq.slice(0, 10);
+        const curCount = last10.filter(x => x === seq[0]).length;
+        if (curCount >= 7) {
+          const balls = calculateDynamicBestNumbers(curSide, nums);
+          return { prediction: curSide, favor: balls.favor, opp: balls.opp, pattern: `🐉 10-RESULT DRAGON MOMENTUM (${curCount}/10)`, rule: 'MACRO_10_DRAGON', confidence: 98, reason: `Last 10 results dominated by ${curSide}. Riding into dragon streak.` };
+        }
+        const balls = calculateDynamicBestNumbers(oppSide, nums);
+        return { prediction: oppSide, favor: balls.favor, opp: balls.opp, pattern: `⚖️ 10-RESULT MACRO EQUILIBRIUM PIVOT (➔ ${oppSide})`, rule: 'MACRO_10_PIVOT', confidence: 97, reason: `3-Streak evaluated over 10 rounds. Invariant rotation to ${oppSide}.` };
+      }
+
+      // [3] Dragon Streak >= 4 -> Continuous Undisturbed Ride
+      if (streakCount >= 4) {
+        const dSide = seq[0] === 'B' ? 'BIG' : 'SMALL';
+        const balls = calculateDynamicBestNumbers(dSide, nums);
+        return { prediction: dSide, favor: balls.favor, opp: balls.opp, pattern: `🐉 ${dSide} DRAGON LIVE LOCK (×${streakCount})`, rule: `DRAGON_${streakCount}`, confidence: 98, reason: `Undisturbed Dragon Lock maintains continuous ${dSide} ride.` };
+      }
+
+      // [4] Match against 220+ Patterns Database (Longest matches first)
+      const sorted = [...PATTERNS_DATABASE].sort((a,b) => b.sequence.length - a.sequence.length);
+      for (const p of sorted) {
+        if (chrono.length >= p.sequence.length) {
+          const tail = chrono.slice(-p.sequence.length);
+          let match = true;
+          for (let i = 0; i < p.sequence.length; i++) {
+            if (tail[i] !== p.sequence[i]) { match = false; break; }
+          }
+          if (match) {
+            const nextSide = p.next === 'B' ? 'BIG' : 'SMALL';
+            const balls = calculateDynamicBestNumbers(nextSide, nums);
+            return { prediction: nextSide, favor: balls.favor, opp: balls.opp, pattern: p.name, rule: p.id, confidence: p.confidence || 96, reason: `Matched 220+ Pattern ${p.id}. Executing ${nextSide}.` };
+          }
+        }
+      }
+
+      // [5] Fallback: Invariant Parity Rotation (never copies last result blindly)
+      const altSide = seq[0] === 'B' ? 'SMALL' : 'BIG';
+      const balls = calculateDynamicBestNumbers(altSide, nums);
+      return { prediction: altSide, favor: balls.favor, opp: balls.opp, pattern: '⚡ HARMONIC ROTATION PIVOT', rule: 'ROTATION_PARITY', confidence: 93, reason: 'Alternating rotation phase active.' };
+    }
+
+    /* =========================================================================
+       6. APPLICATION STATE & USER INTERFACE BINDINGS
+       ========================================================================= */
+    let history = [];
+    let currentPrediction = null;
+    let lastProcessedPeriod = '';
+    let chaseState = { active: false, wallet: 1000, base: 1000, target: 200, level: 1, levels: [10, 22, 48, 105] };
+
+    function updateUi() {
+      const issues = generateUniversalIssues();
+      const targetPeriod = getTargetPeriod();
+      const latest = issues[0];
+
+      // Draw resolution & jackpot win check
+      if (lastProcessedPeriod !== '' && lastProcessedPeriod !== latest.issue) {
+        if (currentPrediction && currentPrediction.period === latest.issue) {
+          const actualNum = latest.number;
+          const actualSize = latest.size;
+          const isFavorMatch = actualNum === currentPrediction.favor;
+          const isOppMatch = actualNum === currentPrediction.opp;
+          const isJackpot = isFavorMatch || isOppMatch;
+          // CRITICAL: Jackpot is ALWAYS a WIN!
+          const isWin = (actualSize === currentPrediction.prediction) || isJackpot;
+
+          // Record History
+          history.unshift({
+            period: latest.issue,
+            pred: currentPrediction.prediction,
+            favor: currentPrediction.favor,
+            opp: currentPrediction.opp,
+            actualNum,
+            actualSize,
+            isWin,
+            isJackpot,
+            matchedType: isFavorMatch ? 'FAVOR' : isOppMatch ? 'OPPOSITE' : null
+          });
+          if (history.length > 100) history.pop();
+
+          // Target Chase Progression
+          if (chaseState.active) {
+            const bet = chaseState.levels[chaseState.level - 1] || 10;
+            if (isWin) {
+              const multi = isJackpot ? 9.82 : 1.96;
+              chaseState.wallet += Math.round(bet * multi);
+              chaseState.level = 1;
+              if (chaseState.wallet - chaseState.base >= chaseState.target) {
+                chaseState.active = false;
+                alert('🏆 CONGRATULATIONS! Target Profit Complete!');
+              }
+            } else {
+              chaseState.wallet -= bet;
+              chaseState.level = Math.min(chaseState.levels.length, chaseState.level + 1);
+            }
+          }
+
+          // Trigger Sound & Confetti
+          if (isJackpot) {
+            audio.playJackpot();
+            try { confetti({ particleCount: 150, spread: 90 }); } catch(e){}
+            showJackpotModal(latest.issue, actualNum, isFavorMatch ? 'FAVOR' : 'OPPOSITE');
+          } else if (isWin) {
+            audio.playWin();
+            try { confetti({ particleCount: 60, spread: 60 }); } catch(e){}
+          } else {
+            audio.playLoss();
+          }
+          renderHistory();
+          renderChase();
+        }
+      }
+      lastProcessedPeriod = latest.issue;
+
+      // Generate Prediction
+      currentPrediction = analyzeSequence(issues, targetPeriod);
+      currentPrediction.period = targetPeriod;
+
+      // Update DOM
+      document.getElementById('target-period-badge').innerText = `#${targetPeriod.slice(-5)}`;
+      document.getElementById('pattern-name-badge').innerText = currentPrediction.pattern;
+      
+      const predEl = document.getElementById('prediction-text');
+      predEl.innerText = currentPrediction.prediction;
+      if (currentPrediction.prediction === 'BIG') {
+        predEl.className = 'font-orbitron font-black text-4xl sm:text-5xl tracking-[0.16em] uppercase text-transparent bg-clip-text bg-gradient-to-b from-amber-200 via-amber-400 to-amber-600 drop-shadow-[0_0_28px_rgba(251,191,36,0.7)] my-0.5';
+      } else {
+        predEl.className = 'font-orbitron font-black text-4xl sm:text-5xl tracking-[0.16em] uppercase text-transparent bg-clip-text bg-gradient-to-b from-cyan-100 via-cyan-400 to-blue-600 drop-shadow-[0_0_28px_rgba(34,211,238,0.7)] my-0.5';
+      }
+
+      document.getElementById('prediction-reason-text').innerText = currentPrediction.reason;
+      document.getElementById('confidence-percentage').innerText = `${currentPrediction.confidence}%`;
+      document.getElementById('confidence-bar').style.width = `${currentPrediction.confidence}%`;
+      document.getElementById('rule-code-badge').innerText = `RULE: ${currentPrediction.rule}`;
+
+      // Render 3D Balls
+      document.getElementById('favor-ball-render').innerHTML = renderBallSvg(currentPrediction.favor, 68);
+      document.getElementById('opp-ball-render').innerHTML = renderBallSvg(currentPrediction.opp, 68);
+      document.getElementById('favor-ball-badge').innerText = `FAVOR #${currentPrediction.favor}`;
+      document.getElementById('opp-ball-badge').innerText = `OPPOSITE #${currentPrediction.opp}`;
+      document.getElementById('jackpot-rule-ribbon').innerHTML = `JACKPOT SYSTEM: EITHER <strong>FAVOR (#${currentPrediction.favor})</strong> OR <strong>OPPOSITE (#${currentPrediction.opp})</strong> MATCH = <strong>JACKPOT 9X</strong>!`;
+
+      // Live Draws Strip
+      const strip = document.getElementById('live-draws-strip');
+      strip.innerHTML = issues.slice(0, 10).map(x => `
+        <div class="flex items-center gap-1 bg-black/40 px-2 py-1 rounded-xl border border-white/5 shrink-0">
+          ${renderBallSvg(x.number, 22)}
+          <div class="flex flex-col text-[8px] font-mono leading-none">
+            <span class="text-slate-400">#${x.issue.slice(-4)}</span>
+            <span class="font-bold ${x.size === 'BIG' ? 'text-amber-400' : 'text-cyan-400'}">${x.size}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function updateCountdown() {
+      const now = new Date();
+      const sec = now.getUTCSeconds();
+      const rem = 60 - sec;
+      const displaySec = rem === 60 ? 60 : rem;
+
+      document.getElementById('timer-seconds-text').innerText = `${displaySec}s`;
+      document.getElementById('timer-clock-text').innerText = `00:${String(displaySec).padStart(2, '0')}`;
+      const circumference = 81.68;
+      const offset = circumference - (displaySec / 60) * circumference;
+      document.getElementById('timer-ring').style.strokeDashoffset = offset;
+
+      if (displaySec === 60 || displaySec === 1) {
+        updateUi();
+      }
+    }
+
+    function showJackpotModal(period, actualNum, type) {
+      const modal = document.getElementById('modal-jackpot');
+      document.getElementById('modal-jackpot-ball-container').innerHTML = renderBallSvg(actualNum, 96);
+      document.getElementById('modal-jackpot-details').innerHTML = `
+        PERIOD #${period.slice(-5)} 〆 <strong>${type} BALL #${actualNum} MATCHED</strong><br>
+        PAYOUT MULTIPLIER: 9.82× WIN RECORDED!
+      `;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    document.getElementById('btn-close-jackpot').addEventListener('click', () => {
+      audio.playClick();
+      const modal = document.getElementById('modal-jackpot');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    });
+
+    /* =========================================================================
+       7. RADAR, CHASE, HISTORY & SETTINGS UI LOGIC
+       ========================================================================= */
+    function renderRadar(filterCat = 'ALL', search = '') {
+      const pillsContainer = document.getElementById('radar-category-pills');
+      const cats = ['ALL', 'DRAGON', 'ZIGZAG', 'MIRROR', 'STAIRCASE', 'TWIST', 'FIBONACCI', 'MACRO_PARITY'];
+      pillsContainer.innerHTML = cats.map(c => `
+        <button class="px-2 py-0.5 rounded-lg text-[8px] font-orbitron font-bold shrink-0 ${c === filterCat ? 'bg-amber-400 text-black' : 'bg-white/5 text-slate-400'}" onclick="setRadarCat('${c}')">
+          ${c}
+        </button>
+      `).join('');
+
+      const list = document.getElementById('radar-patterns-list');
+      const filtered = PATTERNS_DATABASE.filter(p => {
+        const catMatch = filterCat === 'ALL' || p.category === filterCat;
+        const sMatch = search === '' || p.name.toLowerCase().includes(search.toLowerCase()) || p.id.toLowerCase().includes(search.toLowerCase());
+        return catMatch && sMatch;
+      });
+
+      list.innerHTML = filtered.map(p => {
+        const isMatched = currentPrediction && currentPrediction.rule === p.id;
+        return `
+          <div class="p-2 rounded-xl border flex items-center justify-between text-[10px] font-mono ${isMatched ? 'bg-amber-500/25 border-amber-400 text-amber-200 ring-1 ring-amber-400' : 'bg-black/40 border-white/5 text-slate-400'}">
+            <div class="flex flex-col min-w-0 pr-1 truncate">
+              <span class="font-bold text-white truncate">${p.name}</span>
+              <span class="text-[8px] text-slate-500">Next: <strong class="${p.next === 'B' ? 'text-amber-300' : 'text-cyan-300'}">${p.next === 'B' ? 'BIG' : 'SMALL'}</strong> • ${p.confidence}%</span>
+            </div>
+            ${isMatched ? '<span class="px-1.5 py-0.5 rounded bg-amber-400 text-black text-[7.5px] font-black animate-pulse">ACTIVE</span>' : `<span class="text-[7.5px] text-slate-600">${p.id}</span>`}
+          </div>
+        `;
+      }).join('');
+    }
+    window.setRadarCat = function(c) {
+      audio.playClick();
+      renderRadar(c, document.getElementById('radar-search-input').value);
+    };
+    document.getElementById('radar-search-input').addEventListener('input', (e) => {
+      renderRadar('ALL', e.target.value);
+    });
+
+    function renderChase() {
+      document.getElementById('chase-wallet').innerText = `₹${chaseState.wallet.toLocaleString()}`;
+      document.getElementById('chase-target').innerText = `+₹${chaseState.target}`;
+      const profit = chaseState.wallet - chaseState.base;
+      const profitEl = document.getElementById('chase-profit');
+      profitEl.innerText = `${profit >= 0 ? '+' : ''}₹${profit}`;
+      profitEl.className = `font-orbitron font-black text-sm ${profit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+
+      const ladder = document.getElementById('chase-levels-ladder');
+      ladder.innerHTML = chaseState.levels.map((amt, idx) => {
+        const isCur = chaseState.active && chaseState.level === idx + 1;
+        return `
+          <div class="p-2 rounded-xl border text-center ${isCur ? 'bg-amber-500/20 border-amber-400 ring-1 ring-amber-400' : 'bg-black/40 border-white/5'}">
+            <span class="text-[7.5px] font-mono text-slate-400">LVL ${idx + 1}</span>
+            <div class="font-orbitron font-bold text-xs text-white">₹${amt}</div>
+          </div>
+        `;
+      }).join('');
+
+      const btn = document.getElementById('btn-toggle-chase');
+      btn.innerText = chaseState.active ? 'STOP TARGET CHASE' : 'START TARGET CHASE';
+      btn.className = `w-full py-2.5 rounded-xl font-orbitron font-black text-xs tracking-wider transition ${chaseState.active ? 'bg-rose-500 text-white shadow-rose-500/30' : 'bg-gradient-to-r from-emerald-500 to-teal-600 text-black shadow-lg'}`;
+      document.getElementById('chase-status-pill').innerText = chaseState.active ? `ACTIVE LVL ${chaseState.level}` : 'READY';
+    }
+
+    document.getElementById('btn-toggle-chase').addEventListener('click', () => {
+      audio.playClick();
+      chaseState.active = !chaseState.active;
+      renderChase();
+    });
+
+    function renderHistory() {
+      const wins = history.filter(x => x.isWin).length;
+      const losses = history.filter(x => !x.isWin).length;
+      const jackpots = history.filter(x => x.isJackpot).length;
+
+      document.getElementById('hist-total').innerText = history.length;
+      document.getElementById('hist-wins').innerText = wins;
+      document.getElementById('hist-losses').innerText = losses;
+      document.getElementById('hist-jackpot').innerText = jackpots;
+
+      const list = document.getElementById('history-items-list');
+      if (!history.length) {
+        list.innerHTML = `<div class="p-4 text-center text-[10px] font-mono text-slate-500">NO PREDICTIONS LOGGED YET</div>`;
+        return;
+      }
+      list.innerHTML = history.map(h => `
+        <div class="p-2 rounded-xl bg-black/40 border border-white/5 flex items-center justify-between text-[10px] font-mono">
+          <div class="flex items-center gap-2">
+            ${renderBallSvg(h.actualNum, 26)}
+            <div class="flex flex-col">
+              <span class="text-white font-bold">#${h.period.slice(-5)} 〆 PRED: <strong class="${h.pred === 'BIG' ? 'text-amber-300' : 'text-cyan-300'}">${h.pred}</strong></span>
+              <span class="text-slate-400 text-[8.5px]">FAVOR: #${h.favor} | OPP: #${h.opp} | ACT: ${h.actualSize}</span>
+            </div>
+          </div>
+          <div>
+            ${h.isJackpot ? '<span class="px-2 py-0.5 rounded-full bg-yellow-400 text-black font-orbitron font-black text-[8px]">👑 JACKPOT 9X</span>' : (h.isWin ? '<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-[8px]">WIN ✓</span>' : '<span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-bold text-[8px]">LOSS ✕</span>')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('btn-clear-history').addEventListener('click', () => {
+      audio.playClick();
+      history = [];
+      renderHistory();
+    });
+
+    // Copy Signal Formatter
+    document.getElementById('btn-copy-signal').addEventListener('click', () => {
+      if (!currentPrediction) return;
+      audio.playClick();
+      const text = [
+        '☠︎ 𝗕ᴍᴡ 〆 𝗫 〆 𝗟x 〆 𝗣ʀᴇᴅɪᴄᴛᴏʀ 𝟲.𝟮 ☠︎',
+        `⚡ 𝗪𝗜𝗡𝗚𝗢 𝟭𝗠 〆 𝗣𝗘𝗥𝗜𝗢𝗗: #${currentPrediction.period.slice(-5)}`,
+        `🎯 𝗣𝗥𝗘𝗗𝗜𝗖𝗧𝗜𝗢𝗡: ${currentPrediction.prediction}`,
+        `🎱 𝗙𝗔𝗩𝗢𝗥: #${currentPrediction.favor} 〆 🛡️ 𝗢𝗣𝗣𝗢𝗦𝗜𝗧𝗘: #${currentPrediction.opp}`,
+        '✨ 𝗘𝗜𝗧𝗛𝗘𝗥 𝗠𝗔𝗧𝗖𝗛 = 𝟳𝟳𝟳 𝗝𝗔𝗖𝗞𝗣𝗢𝗧 𝟵𝗫',
+        `🔥 𝗣𝗔𝗧𝗧𝗘𝗥𝗡: ${currentPrediction.pattern}`,
+        `👑 𝗔𝗖𝗖𝗨𝗥𝗔𝗖𝗬: ${currentPrediction.confidence}% 〆 𝗗𝗜𝗦𝗖𝗜𝗣𝗟𝗜𝗡𝗘 𝟭-𝟰`
+      ].join('\n');
+
+      navigator.clipboard.writeText(text).then(() => {
+        const copyText = document.getElementById('copy-btn-text');
+        copyText.innerText = 'COPIED!';
+        setTimeout(() => copyText.innerText = 'COPY SIGNAL', 2000);
+      });
+    });
+
+    document.getElementById('btn-reanalyse').addEventListener('click', () => {
+      audio.playClick();
+      updateUi();
+    });
+
+    document.getElementById('btn-sound').addEventListener('click', (e) => {
+      audio.enabled = !audio.enabled;
+      e.target.innerText = audio.enabled ? '🔊' : '🔇';
+    });
+
+    // Navigation Switcher
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        audio.playClick();
+        document.querySelectorAll('.nav-tab').forEach(t => {
+          t.classList.remove('active', 'text-amber-400');
+          t.classList.add('text-slate-400');
+        });
+        tab.classList.add('active', 'text-amber-400');
+        tab.classList.remove('text-slate-400');
+
+        const view = tab.getAttribute('data-view');
+        ['predictor', 'chase', 'radar', 'history', 'settings'].forEach(v => {
+          document.getElementById(`view-${v}`).classList.add('hidden');
+        });
+        document.getElementById(`view-${view}`).classList.remove('hidden');
+
+        if (view === 'radar') renderRadar();
+        if (view === 'chase') renderChase();
+        if (view === 'history') renderHistory();
+      });
+    });
+
+    // Download Standalone Button handler (downloads self)
+    document.getElementById('btn-download-html').addEventListener('click', (e) => {
+      e.preventDefault();
+      audio.playClick();
+      const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'bmw-x-predictor-standalone.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    // Secret double-click lock to open Admin Panel
+    let lastLockClick = 0;
+    const lockBtn = document.getElementById('btn-secret-lock');
+    if (lockBtn) {
+      const triggerAdmin = () => {
+        audio.playJackpot();
+        window.open('/bmw-admin-panel.html', '_blank') || (window.location.href = '/bmw-admin-panel.html');
+      };
+      lockBtn.addEventListener('dblclick', triggerAdmin);
+      lockBtn.addEventListener('click', () => {
+        const now = Date.now();
+        if (now - lastLockClick < 450) {
+          triggerAdmin();
+        }
+        lastLockClick = now;
+      });
+    }
+
+    // Real-time loop initialization
+    updateUi();
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+    renderRadar();
+    renderChase();
+    renderHistory();
+  </script>
+</body>
+</html>

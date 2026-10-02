@@ -1,0 +1,6 @@
+{
+  "name": "BMW X BOSS LX",
+  "description": "BMW X BOSS LX — Ultra VIP Neural Prediction & Pattern Engine. Multi-pattern recognition, Wingo 3D ball prediction, real-time analytics & target chase.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
